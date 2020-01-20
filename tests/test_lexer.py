@@ -52,3 +52,11 @@ def test_parses_block_comment():
         /"""))
     tok = lex.get_token()
     assert tok.id_ == TokenID.DIV
+
+
+def test_raises_unexpected_char():
+    lex = Lexer(io.StringIO("!"))
+    with pytest.raises(LexException) as exception:
+        lex.get_token()
+
+    assert "Invalid char '!' at line 1, column 1" == exception.value.args[0]

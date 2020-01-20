@@ -141,6 +141,8 @@ class Lexer:
 
                 return Token(TokenID.DIV, self.line, self.col - 1, value='/')
 
+            self.error_invalid_char()
+
         return Token(TokenID.EOF, line=self.line, col=self.col, value='')
 
 
