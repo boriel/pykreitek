@@ -102,7 +102,7 @@ class Lexer:
     def skip_until_close_comment(self):
         """ Skips until finding a closing */ or EOF (in which case raises an error)
         """
-        while self.current_char and self.current_char != '\n':
+        while self.current_char:
             if self.current_char == '*':
                 self.get_next_char()
 
