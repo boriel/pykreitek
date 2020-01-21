@@ -12,6 +12,8 @@ class TokenID(IntEnum):
     ID = 5
     INT_LITERAL = 10
     FLOAT_LITERAL = 20
+    STR_LITERAL = 25
+    CHAR_LITERAL = 27
 
     ASSIGN = 30
     PLUS = 40
@@ -290,6 +292,27 @@ class Lexer:
         """
         self._stream.seek(max(0, self._stream.tell() - n), SEEK_SET)
 
+    def get_string(self) -> Token:
+        """ Catches a string literal
+        """
+        ini_col = self.col
+        self.text = ''
+
+        while True:
+            self.get_next_char()
+            if self.current_char == '\\':
+                self.get_next_char()
+                self.text += self.current_char
+                continue
+            elif self.current_char == '"':
+                break
+            elif self.current_char == '' or self.current_char == '\n':
+                raise LexException('Unclosed string literal at line {}, column {}'.format(self.line, ini_col))
+
+            self.text += self.current_char
+
+        return Token(TokenID.STR_LITERAL, line=self.line, col=ini_col, value=self.text)
+
     def get_token(self) -> Token:
         self.text = ''
 
@@ -329,6 +352,9 @@ class Lexer:
                 self.text = self.current_char
                 self.get_next_char()
                 return Token(token_map[self.text], self.line, self.col, self.text)
+
+            if self.current_char == '"':
+                return self.get_string()
 
             self.error_invalid_char()
 

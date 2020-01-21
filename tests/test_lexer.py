@@ -205,3 +205,20 @@ def test_reserved_words():
     ]:
         tok = lex.get_token()
         assert tok == tok_id
+
+
+def test_string_literal():
+    lex = Lexer(io.StringIO(r'   "  \"string\"  "'))
+    tok = lex.get_token()
+    assert tok == Token(TokenID.STR_LITERAL, 0, 0, '  "string"  ')
+
+    with pytest.raises(LexException) as ex:
+        lex = Lexer(io.StringIO(r'   "  \"string\" '))
+        lex.get_token()
+    assert 'Unclosed string literal at line 1, column 4' == ex.value.args[0]
+
+    with pytest.raises(LexException) as ex:
+        lex = Lexer(io.StringIO(r'   "  \"string\" \n'))
+        lex.get_token()
+    assert 'Unclosed string literal at line 1, column 4' == ex.value.args[0]
+
