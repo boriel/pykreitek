@@ -92,49 +92,49 @@ def test_num_is_dot():
 def test_num_is_int():
     lex = Lexer(io.StringIO("341e"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.INT, 0, 0, '341')
+    assert tok == Token(TokenID.INT_LITERAL, 0, 0, '341')
 
     lex = Lexer(io.StringIO("341 "))
     tok = lex.get_token()
-    assert tok == Token(TokenID.INT, 0, 0, '341')
+    assert tok == Token(TokenID.INT_LITERAL, 0, 0, '341')
 
     lex = Lexer(io.StringIO("341e+"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.INT, 0, 0, '341')
+    assert tok == Token(TokenID.INT_LITERAL, 0, 0, '341')
 
 
 def test_num_is_float():
     lex = Lexer(io.StringIO("341."))
     tok = lex.get_token()
-    assert tok == Token(TokenID.FLOAT, 0, 0, '341.')
+    assert tok == Token(TokenID.FLOAT_LITERAL, 0, 0, '341.')
 
     lex = Lexer(io.StringIO("341.5"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.FLOAT, 0, 0, '341.5')
+    assert tok == Token(TokenID.FLOAT_LITERAL, 0, 0, '341.5')
 
     lex = Lexer(io.StringIO(".341"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.FLOAT, 0, 0, '.341')
+    assert tok == Token(TokenID.FLOAT_LITERAL, 0, 0, '.341')
 
     lex = Lexer(io.StringIO("341.e"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.FLOAT, 0, 0, '341.')
+    assert tok == Token(TokenID.FLOAT_LITERAL, 0, 0, '341.')
 
     lex = Lexer(io.StringIO("341e1"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.FLOAT, 0, 0, '341e1')
+    assert tok == Token(TokenID.FLOAT_LITERAL, 0, 0, '341e1')
 
     lex = Lexer(io.StringIO("341e-1"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.FLOAT, 0, 0, '341e-1')
+    assert tok == Token(TokenID.FLOAT_LITERAL, 0, 0, '341e-1')
 
     lex = Lexer(io.StringIO("341.5e-1"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.FLOAT, 0, 0, '341.5e-1')
+    assert tok == Token(TokenID.FLOAT_LITERAL, 0, 0, '341.5e-1')
 
     lex = Lexer(io.StringIO(".0e-1"))
     tok = lex.get_token()
-    assert tok == Token(TokenID.FLOAT, 0, 0, '.0e-1')
+    assert tok == Token(TokenID.FLOAT_LITERAL, 0, 0, '.0e-1')
 
 
 def test_operators():
@@ -176,6 +176,31 @@ def test_various():
         TokenID.COMMA,
         TokenID.SC,
         TokenID.CO,
+        TokenID.EOF
+    ]:
+        tok = lex.get_token()
+        assert tok == tok_id
+
+
+def test_reserved_words():
+    lex = Lexer(io.StringIO("fn mut if else return while char str i8 u8 i32 u32 i64 u64 float"))
+
+    for tok_id in [
+        TokenID.FN,
+        TokenID.MUT,
+        TokenID.IF,
+        TokenID.ELSE,
+        TokenID.RETURN,
+        TokenID.WHILE,
+        TokenID.CHAR,
+        TokenID.STR,
+        TokenID.I8,
+        TokenID.U8,
+        TokenID.I32,
+        TokenID.U32,
+        TokenID.I64,
+        TokenID.U64,
+        TokenID.FLOAT,
         TokenID.EOF
     ]:
         tok = lex.get_token()

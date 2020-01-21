@@ -10,8 +10,8 @@ from io import StringIO, SEEK_SET
 class TokenID(IntEnum):
     EOF = 0
     ID = 5
-    INT = 10
-    FLOAT = 20
+    INT_LITERAL = 10
+    FLOAT_LITERAL = 20
 
     ASSIGN = 30
     PLUS = 40
@@ -44,6 +44,24 @@ class TokenID(IntEnum):
     LSBR = 260
     RSBR = 270
 
+    FN = 1000
+    MUT = 1010
+    IF = 1020
+    ELSE = 1030
+    RETURN = 1040
+    WHILE = 1145
+
+    I8 = 1050
+    U8 = 1060
+    I32 = 1070
+    U32 = 1080
+    I64 = 1090
+    U64 = 1100
+    FLOAT = 1120
+    CHAR = 1130
+    STR = 1140
+    BOOL = 1150
+
 
 token_map = {
     '+': TokenID.PLUS,
@@ -72,7 +90,24 @@ token_map = {
     '(': TokenID.LP,
     ')': TokenID.RP,
     '[': TokenID.LSBR,
-    ']': TokenID.RSBR
+    ']': TokenID.RSBR,
+
+    "fn": TokenID.FN,
+    "mut": TokenID.MUT,
+    "if": TokenID.IF,
+    "else": TokenID.ELSE,
+    "return": TokenID.RETURN,
+    "while": TokenID.WHILE,
+
+    "char": TokenID.CHAR,
+    "str": TokenID.STR,
+    "i8": TokenID.I8,
+    "u8": TokenID.U8,
+    "i32": TokenID.I32,
+    "u32": TokenID.U32,
+    "i64": TokenID.I64,
+    "u64": TokenID.U64,
+    "float": TokenID.FLOAT
 }
 
 
@@ -89,9 +124,9 @@ class Token:
         self.col = col
         self.value = value
 
-        if self.id_ == TokenID.INT:
+        if self.id_ == TokenID.INT_LITERAL:
             self.num_val = int(value)
-        elif self.id_ == TokenID.FLOAT:
+        elif self.id_ == TokenID.FLOAT_LITERAL:
             self.num_val = float(value)
 
     def __eq__(self, other):
@@ -184,7 +219,7 @@ class Lexer:
             self.text += self.current_char
             self.get_next_char()
 
-        return Token(TokenID.ID, line=self.line, col=initial_col, value=self.text)
+        return Token(token_map.get(self.text, TokenID.ID), line=self.line, col=initial_col, value=self.text)
 
     def get_number(self) -> Token:
         """ Returns either an integer or a float
@@ -195,7 +230,7 @@ class Lexer:
             self.get_next_char()
 
         if self.current_char not in '.eE':
-            return Token(TokenID.INT, line=self.line, col=initial_col, value=self.text)
+            return Token(TokenID.INT_LITERAL, line=self.line, col=initial_col, value=self.text)
 
         if self.current_char == '.':
             self.text += '.'
@@ -231,9 +266,9 @@ class Lexer:
                 self.text = self.text[:-1]  # Remove trailing e
 
         if 'e' in self.text or '.' in self.text:
-            return Token(TokenID.FLOAT, line=self.line, col=initial_col, value=self.text)
+            return Token(TokenID.FLOAT_LITERAL, line=self.line, col=initial_col, value=self.text)
 
-        return Token(TokenID.INT, line=self.line, col=initial_col, value=self.text)
+        return Token(TokenID.INT_LITERAL, line=self.line, col=initial_col, value=self.text)
 
     def get_oper(self) -> Token:
         ini_col = self.col
