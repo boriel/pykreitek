@@ -1,6 +1,6 @@
 
 import io
-from main import Lexer, LexException, TokenID, Token
+from lexer import Lexer, LexException, TokenID, Token
 import pytest
 
 
