@@ -26,6 +26,13 @@ class TokenID(IntEnum):
     A_DIV = 120
     A_MOD = 130
 
+    EQ = 150
+    LT = 155
+    LE = 160
+    GT = 165
+    GE = 170
+    NE = 175
+
     DOT = 200
     SC = 210
     CO = 215
@@ -35,6 +42,25 @@ class TokenID(IntEnum):
     RBR = 250
     LSBR = 260
     RSBR = 270
+
+
+token_map = {
+    '+': TokenID.PLUS,
+    '+=': TokenID.A_PLUS,
+    '-': TokenID.MINUS,
+    '-=': TokenID.A_MINUS,
+    '*': TokenID.MUL,
+    '*=': TokenID.A_MUL,
+    '%': TokenID.MOD,
+    '%=': TokenID.A_MOD,
+    '=': TokenID.ASSIGN,
+    '==': TokenID.EQ,
+    '!=': TokenID.NE,
+    '<': TokenID.LT,
+    '<=': TokenID.LE,
+    '>': TokenID.GT,
+    '>=': TokenID.GE
+}
 
 
 class Token:
@@ -105,10 +131,17 @@ class Lexer:
 
         return self.current_char
 
-    def error_invalid_char(self):
+    def error_invalid_char(self, line=None, col=None, char=None):
         """ Raises an invalid char exception
         """
-        raise LexException("Invalid char '{}' at line {}, column {}".format(self.current_char, self.line, self.col))
+        if char is None:
+            char = self.current_char
+        if col is None:
+            col = self.col
+        if line is None:
+            line = self.line
+
+        raise LexException("Invalid char '{}' at line {}, column {}".format(char, line, col))
 
     def skip_to_eol(self):
         while self.current_char and self.current_char != '\n':
@@ -189,6 +222,21 @@ class Lexer:
 
         return Token(TokenID.INT, line=self.line, col=initial_col, value=self.text)
 
+    def get_oper(self) -> Token:
+        ini_col = self.col
+
+        self.text = self.current_char
+        self.get_next_char()
+
+        if self.current_char == '=':
+            self.text += '='
+            self.get_next_char()
+
+        if self.text not in token_map:
+            self.error_invalid_char(col=ini_col, char=self.text)
+
+        return Token(token_map[self.text], self.line, ini_col, self.text)
+
     def rewind(self, n=1):
         """ Rewinds n characters back. Defaults rewind 1 char
         """
@@ -225,6 +273,9 @@ class Lexer:
 
             if self.current_char.isnumeric() or self.current_char == '.':
                 return self.get_number()
+
+            if self.current_char in '+-*%<>=!':
+                return self.get_oper()
 
             self.error_invalid_char()
 
