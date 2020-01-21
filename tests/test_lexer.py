@@ -60,3 +60,9 @@ def test_raises_unexpected_char():
         lex.get_token()
 
     assert "Invalid char '!' at line 1, column 1" == exception.value.args[0]
+
+
+def test_get_id():
+    lex = Lexer(io.StringIO("    /*  */ _an_identifier"))
+    tok = lex.get_token()
+    assert tok == Token(TokenID.ID, 0, 0, value='_an_identifier')

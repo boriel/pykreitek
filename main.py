@@ -66,6 +66,7 @@ class Lexer:
     col: int
     line: int
     _token_counter: int
+    text: str
 
     def __init__(self,
                  input_stream: Union[str, TextIO, StringIO],
@@ -120,7 +121,17 @@ class Lexer:
 
         raise LexException("Unclosed comment at line {}, column {}".format(self.line, self.col))
 
+    def get_identifier(self) -> Token:
+        initial_col = self.col
+        while self.current_char.isalnum() or self.current_char == '_':
+            self.text += self.current_char
+            self.get_next_char()
+
+        return Token(TokenID.ID, line=self.line, col=initial_col, value=self.text)
+
     def get_token(self) -> Token:
+        self.text = ''
+
         while self.current_char:
             if self.current_char in self._skip_chars:
                 self.get_next_char()
@@ -143,6 +154,9 @@ class Lexer:
                     return result
 
                 return Token(TokenID.DIV, self.line, self.col - 1, value='/')
+
+            if self.current_char.isalpha() or self.current_char == '_':
+                return self.get_identifier()
 
             self.error_invalid_char()
 
