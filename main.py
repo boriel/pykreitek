@@ -50,6 +50,9 @@ class Token:
     def __eq__(self, other):
         return self.id_ == other.id_ and self.value == other.value
 
+    def __repr__(self):
+        return 'Token<{} {}:{} {}>'.format(self.id_, self.line, self.col, self.value)
+
 
 class LexException(BaseException):
     pass
