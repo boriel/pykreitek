@@ -139,7 +139,7 @@ def test_num_is_float():
 
 def test_operators():
     lex = Lexer(io.StringIO("!= == = + += - -= * *= / /= % %= < <= > >="))
-    assert all(lex.get_token() == x for x in [
+    for tok_id in [
         TokenID.NE,
         TokenID.EQ,
         TokenID.ASSIGN,
@@ -158,4 +158,25 @@ def test_operators():
         TokenID.GT,
         TokenID.GE,
         TokenID.EOF
-    ])
+    ]:
+        tok = lex.get_token()
+        assert tok == tok_id
+
+
+def test_various():
+    lex = Lexer(io.StringIO("( ) [ ] { } ., ; :"))
+    for tok_id in [
+        TokenID.LP,
+        TokenID.RP,
+        TokenID.LSBR,
+        TokenID.RSBR,
+        TokenID.LBR,
+        TokenID.RBR,
+        TokenID.DOT,
+        TokenID.COMMA,
+        TokenID.SC,
+        TokenID.CO,
+        TokenID.EOF
+    ]:
+        tok = lex.get_token()
+        assert tok == tok_id

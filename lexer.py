@@ -34,6 +34,7 @@ class TokenID(IntEnum):
     NE = 175
 
     DOT = 200
+    COMMA = 205
     SC = 210
     CO = 215
     LP = 220
@@ -59,7 +60,19 @@ token_map = {
     '<': TokenID.LT,
     '<=': TokenID.LE,
     '>': TokenID.GT,
-    '>=': TokenID.GE
+    '>=': TokenID.GE,
+
+    '.': TokenID.DOT,
+    ',': TokenID.COMMA,
+    ':': TokenID.CO,
+    ';': TokenID.SC,
+
+    '{': TokenID.LBR,
+    '}': TokenID.RBR,
+    '(': TokenID.LP,
+    ')': TokenID.RP,
+    '[': TokenID.LSBR,
+    ']': TokenID.RSBR
 }
 
 
@@ -276,6 +289,11 @@ class Lexer:
 
             if self.current_char in '+-*%<>=!':
                 return self.get_oper()
+
+            if self.current_char in '.,:;[](){}':
+                self.text = self.current_char
+                self.get_next_char()
+                return Token(token_map[self.text], self.line, self.col, self.text)
 
             self.error_invalid_char()
 
