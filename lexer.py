@@ -56,6 +56,9 @@ class Token:
             self.num_val = float(value)
 
     def __eq__(self, other):
+        if isinstance(other, TokenID):
+            return self.id_ == other
+
         return self.id_ == other.id_ and self.value == other.value
 
     def __repr__(self):
@@ -136,6 +139,55 @@ class Lexer:
             self.get_next_char()
 
         return Token(TokenID.ID, line=self.line, col=initial_col, value=self.text)
+
+    def get_number(self) -> Token:
+        """ Returns either an integer or a float
+        """
+        initial_col = self.col
+        while self.current_char.isnumeric():
+            self.text += self.current_char
+            self.get_next_char()
+
+        if self.current_char not in '.eE':
+            return Token(TokenID.INT, line=self.line, col=initial_col, value=self.text)
+
+        if self.current_char == '.':
+            self.text += '.'
+            self.get_next_char()
+
+            while self.current_char.isnumeric():
+                self.text += self.current_char
+                self.get_next_char()
+
+            if self.text == '.':
+                return Token(TokenID.DOT, line=self.line, col=self.col, value='.')
+
+        if self.current_char in 'eE':
+            # Here we have either an integer, or a float number
+            self.text += 'e'
+            self.get_next_char()
+
+            if self.current_char in '-+':
+                self.text += self.current_char
+                self.get_next_char()
+
+            while self.current_char.isnumeric():
+                self.text += self.current_char
+                self.get_next_char()
+
+            if self.text[-1] in '+-':
+                # No numbers after the NUM. i.e. 2e+. Means a syntax error probably
+                self.rewind()
+                self.text = self.text[:-1]  # Remove trailing e
+
+            if self.text[-1] == 'e':
+                self.rewind()
+                self.text = self.text[:-1]  # Remove trailing e
+
+        if 'e' in self.text or '.' in self.text:
+            return Token(TokenID.FLOAT, line=self.line, col=initial_col, value=self.text)
+
+        return Token(TokenID.INT, line=self.line, col=initial_col, value=self.text)
 
     def rewind(self, n=1):
         """ Rewinds n characters back. Defaults rewind 1 char
