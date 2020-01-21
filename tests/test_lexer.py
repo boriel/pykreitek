@@ -66,3 +66,10 @@ def test_get_id():
     lex = Lexer(io.StringIO("    /*  */ _an_identifier"))
     tok = lex.get_token()
     assert tok == Token(TokenID.ID, 0, 0, value='_an_identifier')
+
+
+def test_unput():
+    lex = Lexer(io.StringIO("áéí"))
+    lex.get_next_char()
+    lex.rewind()
+    assert lex.get_next_char() == 'é'

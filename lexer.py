@@ -4,7 +4,7 @@
 import sys
 from typing import Union, TextIO
 from enum import IntEnum
-from io import StringIO
+from io import StringIO, SEEK_SET
 
 
 class TokenID(IntEnum):
@@ -25,6 +25,16 @@ class TokenID(IntEnum):
     A_MUL = 110
     A_DIV = 120
     A_MOD = 130
+
+    DOT = 200
+    SC = 210
+    CO = 215
+    LP = 220
+    RP = 230
+    LBR = 240
+    RBR = 250
+    LSBR = 260
+    RSBR = 270
 
 
 class Token:
@@ -127,6 +137,11 @@ class Lexer:
 
         return Token(TokenID.ID, line=self.line, col=initial_col, value=self.text)
 
+    def rewind(self, n=1):
+        """ Rewinds n characters back. Defaults rewind 1 char
+        """
+        self._stream.seek(max(0, self._stream.tell() - n), SEEK_SET)
+
     def get_token(self) -> Token:
         self.text = ''
 
@@ -155,6 +170,9 @@ class Lexer:
 
             if self.current_char.isalpha() or self.current_char == '_':
                 return self.get_identifier()
+
+            if self.current_char.isnumeric() or self.current_char == '.':
+                return self.get_number()
 
             self.error_invalid_char()
 
