@@ -121,9 +121,14 @@ class UnsignedIntType(IntTypeAST):
 class NumericLiteralAST(AST):
     """ A numeric, char o string literal
     """
-    def __init__(self, token: Token):
+    def __init__(self, token: Token, type_: ScalarTypeAST):
         self.token = token
+        self.type = type_
+
+        if isinstance(type_, (SignedIntType, UnsignedIntType)):
+            assert type_.min_val <= token.num_val <= type_.max_val,\
+                "Value {} not in range [{}..{}] for type {}".format(
+                    token.value, type_.min_val, type_.max_val, type_.name)
 
     def emit(self):
         return self.token.value
-
