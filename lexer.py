@@ -68,19 +68,6 @@ class TokenID(IntEnum):
     BOOL = 1150
 
 
-PRIMITIVE_TYPES = {
-    "char",
-    "str",
-    "int8",
-    "uint8",
-    "int32",
-    "uint32",
-    "int64",
-    "uint64",
-    "float",
-}
-
-
 TOKEN_MAP = {
     '+': TokenID.PLUS,
     '+=': TokenID.A_PLUS,

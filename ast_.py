@@ -1,8 +1,21 @@
 # -*- coding: utf-8 -*-
 
 
-from lexer import Token, TOKEN_MAP, PRIMITIVE_TYPES
+from lexer import Token, TOKEN_MAP
 from abc import ABC, abstractmethod
+
+
+PRIMITIVE_TYPES = {
+    "char": 1,
+    "str": None,  # Iterable. sizeof(ptr)
+    "int8": 1,
+    "uint8": 1,
+    "int32": 4,
+    "uint32": 4,
+    "int64": 8,
+    "uint64": 8,
+    "float": 8,
+}
 
 
 class AST(ABC):
@@ -37,19 +50,20 @@ class CompoundTypeAST(TypeAST, ABC):
 class PrimitiveScalarTypeAST(ScalarTypeAST, ABC):
     """ Base class for all primitive types that come defined with the compiler
     """
-    def __init__(self, type_name: str):
-        assert type_name in PRIMITIVE_TYPES, "Invalid type name '{}'".format(type_name)
-        token = Token(TOKEN_MAP[type_name], 0, 0, type_name)
+    def __init__(self, token: Token):
+        assert token.value in PRIMITIVE_TYPES, "Invalid type name '{}'".format(token.value)
+        assert token.value in TOKEN_MAP and TOKEN_MAP[token.value] == token.id_, \
+            "{} does not match type name '{}'".format(str(token.id_), token.value)
         super().__init__(token)
 
 
 class NumericalTypeAST(PrimitiveScalarTypeAST, ABC):
     """ Any integer of float
     """
-    _name = None
+    _emmit_C: str = None
 
-    def __init__(self):
-        super().__init__(self._name)
+    def emit(self) -> str:
+        return self._emmit_C
 
 
 class IntTypeAST(NumericalTypeAST, ABC):
@@ -59,8 +73,9 @@ class IntTypeAST(NumericalTypeAST, ABC):
     _max_val: int
     _size: int  # Size in bytes
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, token: Token):
+        super().__init__(token)
+        self._size = PRIMITIVE_TYPES[self.name]
 
         if self.is_signed:
             self._max_val = (1 << ((self.size << 3) - 1)) - 1
@@ -68,6 +83,8 @@ class IntTypeAST(NumericalTypeAST, ABC):
         else:
             self._max_val = (1 << (8 * self.size)) - 1
             self._min_val = 0
+
+        self._emmit_C = '{}int{}_t'.format(('u', '')[self.is_signed], self.size * 8)
 
     @property
     def size(self) -> int:
@@ -99,62 +116,6 @@ class UnsignedIntType(IntTypeAST, ABC):
     @property
     def is_signed(self) -> bool:
         return False
-
-
-class TypeI8AST(SignedIntType):
-    _size = 1
-    _name = 'int8'
-
-    def emit(self) -> str:
-        return 'int8_t'
-
-
-class TypeU8AST(UnsignedIntType):
-    _size = 1
-    _name = 'uint8'
-
-    def emit(self) -> str:
-        return 'uint8_t'
-
-
-class TypeI32AST(SignedIntType):
-    _size = 4
-    _name = 'int32'
-
-    def emit(self) -> str:
-        return 'int32_t'
-
-
-class TypeU32AST(UnsignedIntType):
-    _size = 4
-    _name = 'uint32'
-
-    def emit(self) -> str:
-        return 'uint32_t'
-
-
-class TypeI64AST(SignedIntType):
-    _size = 8
-    _name = 'int64'
-
-    def emit(self) -> str:
-        return 'int64_t'
-
-
-class TypeU64AST(UnsignedIntType):
-    _size = 8
-    _name = 'uint64'
-
-    def emit(self) -> str:
-        return 'uint64_t'
-
-
-class TypeFloatAST(NumericalTypeAST):
-    _size = 8
-    _name = 'float'
-
-    def emit(self) -> str:
-        return 'double'
 
 
 class NumericLiteralAST(AST):
