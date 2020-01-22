@@ -8,6 +8,9 @@ from io import StringIO, SEEK_SET
 
 
 class TokenID(IntEnum):
+    def __repr__(self):
+        return self.name
+
     EOF = 0
     ID = 5
     INT_LITERAL = 10
@@ -138,7 +141,7 @@ class Token:
         return self.id_ == other.id_ and self.value == other.value
 
     def __repr__(self):
-        return 'Token<{} {}:{} {}>'.format(self.id_, self.line, self.col, self.value)
+        return 'Token<{} {}:{} {}>'.format(repr(self.id_), self.line, self.col, self.value)
 
 
 class LexException(BaseException):
