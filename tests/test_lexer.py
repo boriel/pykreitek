@@ -183,7 +183,7 @@ def test_various():
 
 
 def test_reserved_words():
-    lex = Lexer(io.StringIO("fn mut if else return while char str i8 u8 i32 u32 i64 u64 float"))
+    lex = Lexer(io.StringIO("fn mut if else return while char str int8 uint8 int32 uint32 int64 uint64 float"))
 
     for tok_id in [
         TokenID.FN,

@@ -68,7 +68,20 @@ class TokenID(IntEnum):
     BOOL = 1150
 
 
-token_map = {
+PRIMITIVE_TYPES = {
+    "char",
+    "str",
+    "int8",
+    "uint8",
+    "int32",
+    "uint32",
+    "int64",
+    "uint64",
+    "float",
+}
+
+
+TOKEN_MAP = {
     '+': TokenID.PLUS,
     '+=': TokenID.A_PLUS,
     '-': TokenID.MINUS,
@@ -106,13 +119,13 @@ token_map = {
 
     "char": TokenID.CHAR,
     "str": TokenID.STR,
-    "i8": TokenID.I8,
-    "u8": TokenID.U8,
-    "i32": TokenID.I32,
-    "u32": TokenID.U32,
-    "i64": TokenID.I64,
-    "u64": TokenID.U64,
-    "float": TokenID.FLOAT
+    "int8": TokenID.I8,
+    "uint8": TokenID.U8,
+    "int32": TokenID.I32,
+    "uint32": TokenID.U32,
+    "int64": TokenID.I64,
+    "uint64": TokenID.U64,
+    "float": TokenID.FLOAT,
 }
 
 
@@ -224,7 +237,7 @@ class Lexer:
             self.text += self.current_char
             self.get_next_char()
 
-        return Token(token_map.get(self.text, TokenID.ID), line=self.line, col=initial_col, value=self.text)
+        return Token(TOKEN_MAP.get(self.text, TokenID.ID), line=self.line, col=initial_col, value=self.text)
 
     def get_number(self) -> Token:
         """ Returns either an integer or a float
@@ -285,10 +298,10 @@ class Lexer:
             self.text += '='
             self.get_next_char()
 
-        if self.text not in token_map:
+        if self.text not in TOKEN_MAP:
             self.error_invalid_char(col=ini_col, char=self.text)
 
-        return Token(token_map[self.text], self.line, ini_col, self.text)
+        return Token(TOKEN_MAP[self.text], self.line, ini_col, self.text)
 
     def rewind(self, n=1):
         """ Rewinds n characters back. Defaults rewind 1 char
@@ -364,7 +377,7 @@ class Lexer:
             if self.current_char in '.,:;[](){}':
                 self.text = self.current_char
                 self.get_next_char()
-                return Token(token_map[self.text], self.line, self.col, self.text)
+                return Token(TOKEN_MAP[self.text], self.line, self.col, self.text)
 
             if self.current_char == '"':
                 return self.get_string()
