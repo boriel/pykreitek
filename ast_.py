@@ -93,6 +93,34 @@ class TypeU8AST(UnsignedIntType):
         return 'uint8_t'
 
 
+class TypeI32AST(SignedIntType):
+    _size = 4
+
+    def emit(self) -> str:
+        return 'int32_t'
+
+
+class TypeU32AST(UnsignedIntType):
+    _size = 4
+
+    def emit(self) -> str:
+        return 'uint32_t'
+
+
+class TypeI64AST(SignedIntType):
+    _size = 8
+
+    def emit(self) -> str:
+        return 'int64_t'
+
+
+class TypeU64AST(UnsignedIntType):
+    _size = 8
+
+    def emit(self) -> str:
+        return 'uint64_t'
+
+
 class NumericLiteralAST(AST):
     """ A numeric, char o string literal
     """
