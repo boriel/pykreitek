@@ -316,6 +316,16 @@ class Lexer:
 
         return Token(TokenID.STR_LITERAL, line=self.line, col=ini_col, value=self.text)
 
+    def get_char(self) -> Token:
+        """ Scans a quoted char
+        """
+        char = self.get_next_char()
+        col = self.col
+        if self.get_next_char() != "'":
+            raise LexException("Unclosed char literal. Expected ' at line {}, column {}".format(self.line, self.col))
+
+        return Token(TokenID.CHAR_LITERAL, self.line, col, char)
+
     def get_token(self) -> Token:
         self.text = ''
 
@@ -358,6 +368,9 @@ class Lexer:
 
             if self.current_char == '"':
                 return self.get_string()
+
+            if self.current_char == "'":
+                return self.get_char()
 
             self.error_invalid_char()
 

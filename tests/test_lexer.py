@@ -222,3 +222,12 @@ def test_string_literal():
         lex.get_token()
     assert 'Unclosed string literal at line 1, column 4' == ex.value.args[0]
 
+
+def test_char_literal():
+    lex = Lexer(io.StringIO(" 'ñ' "))
+    assert lex.get_token() == Token(TokenID.CHAR_LITERAL, 1, 3, 'ñ')
+
+    lex = Lexer(io.StringIO(" 'a"))
+    with pytest.raises(LexException) as ex:
+        lex.get_token()
+    assert "Unclosed char literal. Expected ' at line 1, column 3" == ex.value.args[0]
