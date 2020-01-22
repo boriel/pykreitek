@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from lexer import Token
+from lexer import Token, TOKEN_MAP, PRIMITIVE_TYPES
 from abc import ABC, abstractmethod
 
 
@@ -16,7 +16,11 @@ class TypeAST(AST, ABC):
         self.token = token
 
     def __repr__(self):
-        return 'Type<{}>'.format(self.token.id_)
+        return 'Type<{}>'.format(self.name)
+
+    @property
+    def name(self) -> str:
+        return self.token.value
 
 
 class ScalarTypeAST(TypeAST, ABC):
@@ -30,15 +34,33 @@ class CompoundTypeAST(TypeAST, ABC):
     """
 
 
-class IntTypeAST(ScalarTypeAST, ABC):
-    """ Base class for all integer types
+class PrimitiveScalarTypeAST(ScalarTypeAST, ABC):
+    """ Base class for all primitive types that come defined with the compiler
+    """
+    def __init__(self, type_name: str):
+        assert type_name in PRIMITIVE_TYPES, "Invalid type name '{}'".format(type_name)
+        token = Token(TOKEN_MAP[type_name], 0, 0, type_name)
+        super().__init__(token)
+
+
+class NumericalTypeAST(PrimitiveScalarTypeAST, ABC):
+    """ Any integer of float
+    """
+    _name = None
+
+    def __init__(self):
+        super().__init__(self._name)
+
+
+class IntTypeAST(NumericalTypeAST, ABC):
+    """ Base class for all primitive integer types
     """
     _min_val: int
     _max_val: int
     _size: int  # Size in bytes
 
-    def __init__(self, token: Token):
-        super().__init__(token)
+    def __init__(self):
+        super().__init__()
 
         if self.is_signed:
             self._max_val = (1 << ((self.size << 3) - 1)) - 1
@@ -81,6 +103,7 @@ class UnsignedIntType(IntTypeAST, ABC):
 
 class TypeI8AST(SignedIntType):
     _size = 1
+    _name = 'int8'
 
     def emit(self) -> str:
         return 'int8_t'
@@ -88,6 +111,7 @@ class TypeI8AST(SignedIntType):
 
 class TypeU8AST(UnsignedIntType):
     _size = 1
+    _name = 'uint8'
 
     def emit(self) -> str:
         return 'uint8_t'
@@ -95,6 +119,7 @@ class TypeU8AST(UnsignedIntType):
 
 class TypeI32AST(SignedIntType):
     _size = 4
+    _name = 'int32'
 
     def emit(self) -> str:
         return 'int32_t'
@@ -102,6 +127,7 @@ class TypeI32AST(SignedIntType):
 
 class TypeU32AST(UnsignedIntType):
     _size = 4
+    _name = 'uint32'
 
     def emit(self) -> str:
         return 'uint32_t'
@@ -109,6 +135,7 @@ class TypeU32AST(UnsignedIntType):
 
 class TypeI64AST(SignedIntType):
     _size = 8
+    _name = 'int64'
 
     def emit(self) -> str:
         return 'int64_t'
@@ -116,9 +143,18 @@ class TypeI64AST(SignedIntType):
 
 class TypeU64AST(UnsignedIntType):
     _size = 8
+    _name = 'uint64'
 
     def emit(self) -> str:
         return 'uint64_t'
+
+
+class TypeFloatAST(NumericalTypeAST):
+    _size = 8
+    _name = 'float'
+
+    def emit(self) -> str:
+        return 'double'
 
 
 class NumericLiteralAST(AST):
