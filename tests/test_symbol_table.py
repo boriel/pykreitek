@@ -43,3 +43,18 @@ def test_duplicated_name(symbol_table: SymbolTable, mocker):
     log.error.assert_not_called()
     symbol_table.declare_symbol(token, ast_.SignedIntType(token))
     log.error.assert_called_once_with('1: duplicated name "int8"')
+
+
+def test_resolve_symbol(symbol_table: SymbolTable):
+    token = Token(TokenID.CHAR, 0, 0, 'char')
+    char_type = ast_.PrimitiveScalarTypeAST(token, 'char')
+    symbol_table.declare_symbol(token, char_type)
+    assert symbol_table.resolve_symbol('char') == char_type
+
+    symbol_table.push_scope('local')
+    token = Token(TokenID.STR, 0, 0, 'str')
+    str_type = ast_.PrimitiveScalarTypeAST(token, 'str')
+    symbol_table.declare_symbol(token, str_type)
+    assert symbol_table.resolve_symbol('str') == str_type
+    assert symbol_table.resolve_symbol('char') == char_type
+    assert not symbol_table.resolve_symbol('unknown')
