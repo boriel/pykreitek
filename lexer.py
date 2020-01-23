@@ -113,6 +113,7 @@ TOKEN_MAP = {
     "int64": TokenID.I64,
     "uint64": TokenID.U64,
     "float": TokenID.FLOAT,
+    "bool": TokenID.BOOL
 }
 
 

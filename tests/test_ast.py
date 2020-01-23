@@ -70,3 +70,22 @@ def test_u64():
     assert isinstance(t, ast.TypeAST)
     assert t.min_val == 0
     assert t.max_val == (1 << 64) - 1
+
+
+def test_char():
+    t = ast.PrimitiveScalarTypeAST(Token(TokenID.CHAR, 0, 0, 'char'))
+    assert isinstance(t, ast.ScalarTypeAST)
+    assert isinstance(t, ast.TypeAST)
+
+
+def test_str():
+    t = ast.PrimitiveScalarTypeAST(Token(TokenID.STR, 0, 0, 'str'))
+    assert isinstance(t, ast.ScalarTypeAST)
+    assert isinstance(t, ast.TypeAST)
+
+
+def test_bool():
+    t = ast.PrimitiveScalarTypeAST(Token(TokenID.BOOL, 0, 0, 'bool'))
+    assert isinstance(t, ast.ScalarTypeAST)
+    assert isinstance(t, ast.TypeAST)
+

@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 PRIMITIVE_TYPES = {
     "char": 1,
-    "str": None,  # Iterable. sizeof(ptr)
+    "str": 8,  # Iterable. sizeof(ptr) => 8 for x64, 4 for x86
     "int8": 1,
     "uint8": 1,
     "int32": 4,
@@ -15,6 +15,7 @@ PRIMITIVE_TYPES = {
     "int64": 8,
     "uint64": 8,
     "float": 8,
+    "bool": 1,
 }
 
 
@@ -47,23 +48,31 @@ class CompoundTypeAST(TypeAST, ABC):
     """
 
 
-class PrimitiveScalarTypeAST(ScalarTypeAST, ABC):
+class PrimitiveScalarTypeAST(ScalarTypeAST):
     """ Base class for all primitive types that come defined with the compiler
     """
-    def __init__(self, token: Token):
+    def __init__(self, token: Token, emmit_str: str = ''):
         assert token.value in PRIMITIVE_TYPES, "Invalid type name '{}'".format(token.value)
         assert token.value in TOKEN_MAP and TOKEN_MAP[token.value] == token.id_, \
             "{} does not match type name '{}'".format(str(token.id_), token.value)
         super().__init__(token)
-
-
-class NumericalTypeAST(PrimitiveScalarTypeAST, ABC):
-    """ Any integer of float
-    """
-    _emmit_C: str = None
+        self._size = PRIMITIVE_TYPES[self.name]
+        self._emmit_C = emmit_str
 
     def emit(self) -> str:
         return self._emmit_C
+
+    @property
+    def size(self) -> int:
+        """ Returns size in bytes
+        """
+        return self._size
+
+
+class NumericalTypeAST(PrimitiveScalarTypeAST):
+    """ Any integer of float
+    """
+    _emmit_C: str = None
 
 
 class IntTypeAST(NumericalTypeAST, ABC):
@@ -75,7 +84,6 @@ class IntTypeAST(NumericalTypeAST, ABC):
 
     def __init__(self, token: Token):
         super().__init__(token)
-        self._size = PRIMITIVE_TYPES[self.name]
 
         if self.is_signed:
             self._max_val = (1 << ((self.size << 3) - 1)) - 1
@@ -86,11 +94,6 @@ class IntTypeAST(NumericalTypeAST, ABC):
 
         self._emmit_C = '{}int{}_t'.format(('u', '')[self.is_signed], self.size * 8)
 
-    @property
-    def size(self) -> int:
-        """ Returns size in bytes
-        """
-        return self._size
 
     @property
     def min_val(self) -> int:
