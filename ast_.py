@@ -106,13 +106,13 @@ class IntTypeAST(NumericalTypeAST, ABC):
         pass
 
 
-class SignedIntType(IntTypeAST, ABC):
+class SignedIntType(IntTypeAST):
     @property
     def is_signed(self) -> bool:
         return True
 
 
-class UnsignedIntType(IntTypeAST, ABC):
+class UnsignedIntType(IntTypeAST):
     @property
     def is_signed(self) -> bool:
         return False
