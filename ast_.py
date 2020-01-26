@@ -3,20 +3,21 @@
 
 from lexer import Token, TOKEN_MAP
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 
 
-PRIMITIVE_TYPES = {
-    "char": 1,
-    "str": 8,  # Iterable. sizeof(ptr) => 8 for x64, 4 for x86
-    "int8": 1,
-    "uint8": 1,
-    "int32": 4,
-    "uint32": 4,
-    "int64": 8,
-    "uint64": 8,
-    "float": 8,
-    "bool": 1,
-}
+PRIMITIVE_TYPES = OrderedDict([
+    ("int8", 1),
+    ("uint8", 1),
+    ("int32", 4),
+    ("uint32", 4),
+    ("int64", 8),
+    ("uint64", 8),
+    ("float", 8),
+    ("bool", 1),
+    ("char", 1),
+    ("str", 8),  # Iterable. sizeof(ptr) => 8 for x64, 4 for x86
+])
 
 
 class AST(ABC):
