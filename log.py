@@ -14,6 +14,9 @@ class LogLevel(Enum):
     ERROR = 3
     CRITICAL = 4  # Raises an exception
 
+    def __ge__(self, other):
+        return self.value >= other.value
+
 
 SEVERITY = LogLevel.WARNING
 OUTPUT: TextIO = sys.stderr
