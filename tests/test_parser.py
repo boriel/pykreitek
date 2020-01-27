@@ -40,3 +40,10 @@ def test_parser_numeric_error(mocker):
     ast = parser_.match_number_literal()
     assert ast is None, "Syntax error expected"
     log.error.assert_called_once_with("1: syntax error: unexpected token 'Token<ID 1:3 a>'")
+
+
+def test_parser_varname():
+    parser_ = parser.Parser(io.StringIO('   _9aa9_ '))
+    ast = parser_.match_id()
+    assert ast is not None, "Should parse an ID"
+    assert ast.var_name == '_9aa9_'

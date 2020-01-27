@@ -136,3 +136,17 @@ class NumericLiteralAST(AST):
 
     def emit(self):
         return self.token.value
+
+
+class IdAST(AST):
+    """ A variable name
+    """
+    def __init__(self, token: Token):
+        self.token = token
+
+    @property
+    def var_name(self) -> str:
+        return self.token.value
+
+    def emit(self) -> str:
+        return self.var_name

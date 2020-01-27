@@ -100,3 +100,9 @@ class Parser:
         self.lookahead = self.lex.get_token()
         return result
 
+    def match_id(self) -> Optional[ast_.IdAST]:
+        token = self.match(TokenID.ID)
+        if not token:
+            return
+
+        return ast_.IdAST(token[0])
