@@ -49,3 +49,11 @@ def test_parser_varname():
     ast = parser_.match_id()
     assert ast is not None, "Should parse an ID"
     assert ast.var_name == '_9aa9_'
+
+
+def test_parser_string_literal():
+    parser_ = parser.Parser(io.StringIO('  "a string" '))
+    ast = parser_.match_string_literal()
+    assert ast is not None, "Should parse a String literal"
+    assert ast.value == 'a string'
+    assert ast.type.name == 'str'

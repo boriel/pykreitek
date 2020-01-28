@@ -21,15 +21,15 @@ PRIMITIVE_TYPES = OrderedDict([
 
 
 class AST(ABC):
+    def __init__(self, token: Token):
+        self.token = token
+
     @abstractmethod
     def emit(self) -> str:
         pass
 
 
 class TypeAST(AST, ABC):
-    def __init__(self, token: Token):
-        self.token = token
-
     def __repr__(self):
         return 'Type<{}>'.format(self.name)
 
@@ -139,14 +139,22 @@ class NumericLiteralAST(AST):
 
 
 class IdAST(AST):
-    """ A variable name
+    """ An identifier (can be a variable or function name)
     """
-    def __init__(self, token: Token):
-        self.token = token
-
     @property
     def var_name(self) -> str:
         return self.token.value
 
     def emit(self) -> str:
         return self.var_name
+
+
+class StringLiteral(AST):
+    type: ScalarTypeAST
+
+    def emit(self) -> str:
+        return '"{}"'.format(self.value)
+
+    @property
+    def value(self) -> str:
+        return self.token.value
