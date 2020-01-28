@@ -22,6 +22,7 @@ def test_parser_numeric_literal():
     assert ast.token.id_ == TokenID.INT_LITERAL
     assert ast.token.value == '3452'
     assert ast.token.num_val == 3452
+    assert ast.type.name == 'int32'
 
 
 def test_parser_numeric_literal_float():
@@ -32,6 +33,7 @@ def test_parser_numeric_literal_float():
     assert ast.token.id_ == TokenID.FLOAT_LITERAL
     assert ast.token.value == '.3452e2'
     assert ast.token.num_val == 34.52
+    assert ast.type.name == 'float'
 
 
 def test_parser_numeric_error(mocker):
