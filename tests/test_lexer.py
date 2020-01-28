@@ -212,6 +212,12 @@ def test_string_literal():
     tok = lex.get_token()
     assert tok == Token(TokenID.STR_LITERAL, 0, 0, '  "string"  ')
 
+    lex = Lexer(io.StringIO(r'   "  \"string\"  "  "another string" '))
+    tok = lex.get_token()
+    assert tok == Token(TokenID.STR_LITERAL, 0, 0, '  "string"  ')
+    tok = lex.get_token()
+    assert tok == Token(TokenID.STR_LITERAL, 0, 0, 'another string')
+
     with pytest.raises(LexException) as ex:
         lex = Lexer(io.StringIO(r'   "  \"string\" '))
         lex.get_token()

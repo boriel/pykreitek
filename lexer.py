@@ -309,6 +309,7 @@ class Lexer:
                 self.text += self.current_char
                 continue
             elif self.current_char == '"':
+                self.get_next_char()
                 break
             elif self.current_char == '' or self.current_char == '\n':
                 raise LexException('Unclosed string literal at line {}, column {}'.format(self.line, ini_col))
