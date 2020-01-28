@@ -57,3 +57,16 @@ def test_parser_string_literal():
     assert ast is not None, "Should parse a String literal"
     assert ast.value == 'a string'
     assert ast.type.name == 'str'
+
+
+def test_parser_char_literal():
+    parser_ = parser.Parser(io.StringIO("  'c' 'q' "))
+    ast = parser_.match_char_literal()
+    assert ast is not None, "Should parse a Char literal"
+    assert ast.value == 'c'
+    assert ast.type.name == 'char'
+
+    ast = parser_.match_char_literal()
+    assert ast is not None, "Should parse a Char literal"
+    assert ast.value == 'q'
+    assert ast.type.name == 'char'

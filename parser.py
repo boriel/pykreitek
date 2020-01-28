@@ -107,11 +107,20 @@ class Parser:
 
         return ast_.IdAST(token[0])
 
-    def match_string_literal(self) -> Optional[ast_.StringLiteral]:
+    def match_string_literal(self) -> Optional[ast_.StringLiteralAST]:
         token = self.match(TokenID.STR_LITERAL)
         if not token:
             return
 
-        result = ast_.StringLiteral(token[0])
+        result = ast_.StringLiteralAST(token[0])
         result.type = self.symbol_table.resolve_symbol('str')
+        return result
+
+    def match_char_literal(self) -> Optional[ast_.CharLiteralAST]:
+        token = self.match(TokenID.CHAR_LITERAL)
+        if not token:
+            return
+
+        result = ast_.CharLiteralAST(token[0])
+        result.type = self.symbol_table.resolve_symbol('char')
         return result

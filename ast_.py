@@ -38,6 +38,12 @@ class TypeAST(AST, ABC):
         return self.token.value
 
 
+class ScalarLiteralAST(AST, ABC):
+    @property
+    def value(self) -> str:
+        return self.token.value
+
+
 class ScalarTypeAST(TypeAST, ABC):
     """ Scalar types holds a single value
     """
@@ -126,7 +132,7 @@ class NumericLiteralAST(AST):
     """ A numeric, char o string literal
     """
     def __init__(self, token: Token, type_: ScalarTypeAST):
-        self.token = token
+        super().__init__(token)
         self.type = type_
 
         if isinstance(type_, (SignedIntType, UnsignedIntType)):
@@ -149,12 +155,15 @@ class IdAST(AST):
         return self.var_name
 
 
-class StringLiteral(AST):
+class StringLiteralAST(ScalarLiteralAST):
     type: ScalarTypeAST
 
     def emit(self) -> str:
         return '"{}"'.format(self.value)
 
-    @property
-    def value(self) -> str:
-        return self.token.value
+
+class CharLiteralAST(ScalarLiteralAST):
+    type: ScalarTypeAST
+
+    def emit(self) -> str:
+        return "'{}'".format(self.value)
