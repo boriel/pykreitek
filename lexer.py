@@ -322,10 +322,14 @@ class Lexer:
         """ Scans a quoted char
         """
         char = self.get_next_char()
+        if char == "'":
+            raise LexException("Empty char value not allowed")
+
         col = self.col
         if self.get_next_char() != "'":
             raise LexException("Unclosed char literal. Expected ' at line {}, column {}".format(self.line, self.col))
 
+        self.get_next_char()
         return Token(TokenID.CHAR_LITERAL, self.line, col, char)
 
     def get_token(self) -> Token:
