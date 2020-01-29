@@ -94,3 +94,18 @@ def test_parser_primary():
     assert ast.value == 'a string'
     assert ast.type.name == 'str'
 
+
+def test_parser_unary(mocker):
+    parser_ = parser.Parser(io.StringIO("  + --1"))
+    ast = parser_.match_unary()
+    assert ast is not None, "Should parse a unary"
+    assert ast.op.value == '+'
+    assert ast.primary.op.value == '-'
+    assert ast.primary.primary.op.value == '-'
+    assert ast.primary.primary.primary.value == '1'
+
+    mocker.patch('log.error')
+    parser_ = parser.Parser(io.StringIO("  + --'a'"))
+    ast = parser_.match_unary()
+    assert ast is None, "Syntax error expected"
+    log.error.assert_called_once_with("1: syntax error: unexpected token 'Token<CHAR_LITERAL 1:8 a>'")

@@ -13,6 +13,23 @@ class ParserSyntaxErrorException(BaseException):
     pass
 
 
+# Binary operator precedence (higher value, higher priority)
+OPERATOR_PRECEDENCE = {
+    '>': 10,
+    '<': 10,
+    '==': 10,
+    '<=': 10,
+    '>=': 10,
+    '!=': 10,
+    '+': 20,
+    '-': 20,
+    '*': 30,
+    '/': 30,
+    '%': 30,
+    '**': 40,
+}
+
+
 class Parser:
     """ Implements an LL parser
     """
@@ -133,6 +150,30 @@ class Parser:
             return self.match_string_literal()
         if self.lookahead == TokenID.CHAR_LITERAL:
             return self.match_char_literal()
+
+        self.error_unexpected_token()
+        return None
+
+    def match_unary(self) -> Union[None,
+                                   ast_.NumericLiteralAST,
+                                   ast_.StringLiteralAST,
+                                   ast_.CharLiteralAST,
+                                   ast_.UnaryExprAST]:
+        if self.lookahead in (TokenID.PLUS, TokenID.MINUS):
+            oper = self.lookahead
+            self.lookahead = self.lex.get_token()
+            if self.lookahead in (TokenID.CHAR_LITERAL, TokenID.STR_LITERAL):
+                self.error_unexpected_token()
+                return None
+
+            primary = self.match_unary()
+            if primary is None:
+                return None
+
+            return ast_.UnaryExprAST(op=oper, primary=primary)
+
+        if self.lookahead in (TokenID.CHAR_LITERAL, TokenID.STR_LITERAL, TokenID.FLOAT_LITERAL, TokenID.INT_LITERAL):
+            return self.match_primary()
 
         self.error_unexpected_token()
         return None

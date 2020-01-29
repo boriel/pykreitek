@@ -4,6 +4,7 @@
 from lexer import Token, TOKEN_MAP
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+from typing import Optional, Union
 
 
 PRIMITIVE_TYPES = OrderedDict([
@@ -21,15 +22,19 @@ PRIMITIVE_TYPES = OrderedDict([
 
 
 class AST(ABC):
-    def __init__(self, token: Token):
-        self.token = token
-
     @abstractmethod
     def emit(self) -> str:
         pass
 
 
-class TypeAST(AST, ABC):
+class TokenAST(AST, ABC):
+    """ Abstract base class for basic AST symbols which are mostly terminals
+    """
+    def __init__(self, token: Token):
+        self.token = token
+
+
+class TypeAST(TokenAST, ABC):
     def __repr__(self):
         return 'Type<{}>'.format(self.name)
 
@@ -38,7 +43,7 @@ class TypeAST(AST, ABC):
         return self.token.value
 
 
-class ScalarLiteralAST(AST, ABC):
+class ScalarLiteralAST(TokenAST, ABC):
     @property
     def value(self) -> str:
         return self.token.value
@@ -101,7 +106,6 @@ class IntTypeAST(NumericalTypeAST, ABC):
 
         self._emmit_C = '{}int{}_t'.format(('u', '')[self.is_signed], self.size * 8)
 
-
     @property
     def min_val(self) -> int:
         return self._min_val
@@ -128,7 +132,7 @@ class UnsignedIntType(IntTypeAST):
         return False
 
 
-class NumericLiteralAST(AST):
+class NumericLiteralAST(TokenAST):
     """ A numeric, char o string literal
     """
     def __init__(self, token: Token, type_: ScalarTypeAST):
@@ -148,7 +152,7 @@ class NumericLiteralAST(AST):
         return self.token.value
 
 
-class IdAST(AST):
+class IdAST(TokenAST):
     """ An identifier (can be a variable or function name)
     """
     @property
@@ -171,3 +175,14 @@ class CharLiteralAST(ScalarLiteralAST):
 
     def emit(self) -> str:
         return "'{}'".format(self.value)
+
+
+class UnaryExprAST(AST):
+    type_: TypeAST
+
+    def __init__(self, op: Token, primary: Union[CharLiteralAST, StringLiteralAST, IdAST]):
+        self.primary = primary
+        self.op = op
+
+    def emit(self) -> str:
+        return "{}{}".format(self.op.value, self.primary.emit())
