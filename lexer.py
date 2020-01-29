@@ -24,12 +24,14 @@ class TokenID(IntEnum):
     MUL = 60
     DIV = 70
     MOD = 80
+    POW = 85
 
     A_PLUS = 90
     A_MINUS = 100
     A_MUL = 110
     A_DIV = 120
     A_MOD = 130
+    A_POW = 145
 
     EQ = 150
     LT = 155
@@ -84,6 +86,8 @@ TOKEN_MAP = {
     '<=': TokenID.LE,
     '>': TokenID.GT,
     '>=': TokenID.GE,
+    '**': TokenID.POW,
+    '**=': TokenID.A_POW,
 
     '.': TokenID.DOT,
     ',': TokenID.COMMA,
@@ -282,8 +286,8 @@ class Lexer:
         self.text = self.current_char
         self.get_next_char()
 
-        if self.current_char == '=':
-            self.text += '='
+        while self.current_char and self.text + self.current_char in TOKEN_MAP:
+            self.text += self.current_char
             self.get_next_char()
 
         if self.text not in TOKEN_MAP:

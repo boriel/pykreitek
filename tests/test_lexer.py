@@ -138,7 +138,7 @@ def test_num_is_float():
 
 
 def test_operators():
-    lex = Lexer(io.StringIO("!= == = + += - -= * *= / /= % %= < <= > >="))
+    lex = Lexer(io.StringIO("!= == = + += - -= * *= / /= % %= < <= > >= ** **="))
     for tok_id in [
         TokenID.NE,
         TokenID.EQ,
@@ -157,6 +157,8 @@ def test_operators():
         TokenID.LE,
         TokenID.GT,
         TokenID.GE,
+        TokenID.POW,
+        TokenID.A_POW,
         TokenID.EOF
     ]:
         tok = lex.get_token()
