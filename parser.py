@@ -177,3 +177,33 @@ class Parser:
 
         self.error_unexpected_token()
         return None
+
+    def match_binary_right_side(self, left: Union[ast_.UnaryExprAST, ast_.BinaryExprAST]) \
+            -> Union[None, ast_.UnaryExprAST, ast_.BinaryExprAST]:
+        oper = self.lookahead
+        self.lookahead = self.lex.get_token()
+
+        right = self.match_unary()
+        if right is None:
+            return None
+
+        if self.lookahead.value not in OPERATOR_PRECEDENCE or \
+                OPERATOR_PRECEDENCE[oper.value] >= OPERATOR_PRECEDENCE[self.lookahead.value]:
+            return ast_.BinaryExprAST(op=oper, left=left, right=right)
+
+        # Another operator
+        right = self.match_binary_right_side(right)
+        if right is None:
+            return None
+
+        return ast_.BinaryExprAST(op=oper, left=left, right=right)
+
+    def match_binary_or_unary(self) -> Union[None, ast_.UnaryExprAST, ast_.BinaryExprAST]:
+        left = self.match_unary()
+        if left is None:
+            return None
+
+        while self.lookahead.value in OPERATOR_PRECEDENCE:
+            left = self.match_binary_right_side(left)
+
+        return left

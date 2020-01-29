@@ -109,3 +109,25 @@ def test_parser_unary(mocker):
     ast = parser_.match_unary()
     assert ast is None, "Syntax error expected"
     log.error.assert_called_once_with("1: syntax error: unexpected token 'Token<CHAR_LITERAL 1:8 a>'")
+
+
+def test_parser_binary():
+    parser_ = parser.Parser(io.StringIO("  +1 - 5"))
+    ast = parser_.match_binary_or_unary()
+    assert ast is not None, "Should parse a binary"
+    assert ast.emit() == '(+1 - 5)'
+
+    parser_ = parser.Parser(io.StringIO("1 + 5 * 4"))
+    ast = parser_.match_binary_or_unary()
+    assert ast is not None, "Should parse a binary"
+    assert ast.emit() == '(1 + (5 * 4))'
+
+    parser_ = parser.Parser(io.StringIO("1 + 5 * 4 ** 2"))
+    ast = parser_.match_binary_or_unary()
+    assert ast is not None, "Should parse a binary"
+    assert ast.emit() == '(1 + (5 * (4 ** 2)))'
+
+    parser_ = parser.Parser(io.StringIO("1 + 5 + 4"))
+    ast = parser_.match_binary_or_unary()
+    assert ast is not None, "Should parse a binary"
+    assert ast.emit() == '((1 + 5) + 4)'

@@ -186,3 +186,15 @@ class UnaryExprAST(AST):
 
     def emit(self) -> str:
         return "{}{}".format(self.op.value, self.primary.emit())
+
+
+class BinaryExprAST(AST):
+    type_: TypeAST
+
+    def __init__(self, op: Token, left: UnaryExprAST, right: UnaryExprAST):
+        self.op = op
+        self.left = left
+        self.right = right
+
+    def emit(self) -> str:
+        return "({} {} {})".format(self.left.emit(), self.op.value, self.right.emit())
