@@ -143,6 +143,10 @@ class NumericLiteralAST(AST):
     def emit(self):
         return self.token.value
 
+    @property
+    def value(self) -> str:
+        return self.token.value
+
 
 class IdAST(AST):
     """ An identifier (can be a variable or function name)

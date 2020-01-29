@@ -70,3 +70,27 @@ def test_parser_char_literal():
     assert ast is not None, "Should parse a Char literal"
     assert ast.value == 'q'
     assert ast.type.name == 'char'
+
+
+def test_parser_primary():
+    parser_ = parser.Parser(io.StringIO("  5.e-1  42  'a' \"a string\" "))
+    ast = parser_.match_primary()
+    assert ast is not None, "Should parse a primary"
+    assert ast.value == '5.e-1'
+    assert ast.type.name == 'float'
+
+    ast = parser_.match_primary()
+    assert ast is not None, "Should parse a primary"
+    assert ast.value == '42'
+    assert ast.type.name == 'int8'
+
+    ast = parser_.match_primary()
+    assert ast is not None, "Should parse a primary"
+    assert ast.value == 'a'
+    assert ast.type.name == 'char'
+
+    ast = parser_.match_primary()
+    assert ast is not None, "Should parse a primary"
+    assert ast.value == 'a string'
+    assert ast.type.name == 'str'
+

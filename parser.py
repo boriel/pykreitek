@@ -97,7 +97,6 @@ class Parser:
             return None
 
         result = ast_.NumericLiteralAST(token, type_)
-        self.lookahead = self.lex.get_token()
         return result
 
     def match_id(self) -> Optional[ast_.IdAST]:
@@ -124,3 +123,16 @@ class Parser:
         result = ast_.CharLiteralAST(token[0])
         result.type = self.symbol_table.resolve_symbol('char')
         return result
+
+    def match_primary(self) -> Union[None, ast_.NumericLiteralAST, ast_.StringLiteralAST, ast_.CharLiteralAST]:
+        """ Matches a primary expression value
+        """
+        if self.lookahead in (TokenID.INT_LITERAL, TokenID.FLOAT_LITERAL):
+            return self.match_number_literal()
+        if self.lookahead == TokenID.STR_LITERAL:
+            return self.match_string_literal()
+        if self.lookahead == TokenID.CHAR_LITERAL:
+            return self.match_char_literal()
+
+        self.error_unexpected_token()
+        return None
