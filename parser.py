@@ -208,3 +208,19 @@ class Parser:
             left = self.match_binary_right_side(left)
 
         return left
+
+    def match_arg_list(self) -> Optional[ast_.ArgListAST]:
+        self.match(TokenID.LP)
+        args = []
+
+        while True:
+            if self.lookahead == TokenID.RP:
+                break
+            args.append(self.match_binary_or_unary())
+
+            if self.lookahead != TokenID.COMMA:
+                break
+            self.match(TokenID.COMMA)
+
+        self.match(TokenID.RP)
+        return ast_.ArgListAST(args)

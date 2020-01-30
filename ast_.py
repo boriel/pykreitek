@@ -4,7 +4,7 @@
 from lexer import Token, TOKEN_MAP
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from typing import Optional, Union
+from typing import List, Union
 
 
 PRIMITIVE_TYPES = OrderedDict([
@@ -198,3 +198,11 @@ class BinaryExprAST(AST):
 
     def emit(self) -> str:
         return "({} {} {})".format(self.left.emit(), self.op.value, self.right.emit())
+
+
+class ArgListAST(AST):
+    def __init__(self, arg_list: List[AST]):
+        self.args = arg_list
+
+    def emit(self) -> str:
+        return '({})'.format(', '.join(x.emit() for x in self.args))

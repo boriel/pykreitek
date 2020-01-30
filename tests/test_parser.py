@@ -141,3 +141,12 @@ def test_parser_binary():
     ast = parser_.match_binary_or_unary()
     assert ast is not None, "Should parse a binary"
     assert ast.emit() == '((1 + 5) + 4)'
+
+
+def test_parser_arglist():
+    parser_ = parser.Parser(io.StringIO(" ((5 - 3), 4, 2 + 3 * -4)"))
+    ast = parser_.match_arg_list()
+    assert ast is not None, "Should parse an arglist"
+    assert isinstance(ast, ast_.ArgListAST)
+    assert len(ast.args) == 3
+    assert ast.emit() == '((5 - 3), 4, (2 + (3 * -4)))'
