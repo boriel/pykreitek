@@ -150,6 +150,11 @@ class Parser:
             return self.match_string_literal()
         if self.lookahead == TokenID.CHAR_LITERAL:
             return self.match_char_literal()
+        if self.lookahead == TokenID.LP:
+            self.match(TokenID.LP)
+            result = self.match_binary_or_unary()
+            self.match(TokenID.RP)
+            return result
 
         self.error_unexpected_token()
         return None
@@ -172,11 +177,7 @@ class Parser:
 
             return ast_.UnaryExprAST(op=oper, primary=primary)
 
-        if self.lookahead in (TokenID.CHAR_LITERAL, TokenID.STR_LITERAL, TokenID.FLOAT_LITERAL, TokenID.INT_LITERAL):
-            return self.match_primary()
-
-        self.error_unexpected_token()
-        return None
+        return self.match_primary()
 
     def match_binary_right_side(self, left: Union[ast_.UnaryExprAST, ast_.BinaryExprAST]) \
             -> Union[None, ast_.UnaryExprAST, ast_.BinaryExprAST]:

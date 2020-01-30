@@ -111,6 +111,16 @@ def test_parser_unary(mocker):
     log.error.assert_called_once_with("1: syntax error: unexpected token 'Token<CHAR_LITERAL 1:8 a>'")
 
 
+def test_parse_unary_with_parenthesis():
+    parser_ = parser.Parser(io.StringIO(" -(-1)"))
+    ast = parser_.match_unary()
+    assert ast is not None, "Should parse a unary"
+    assert isinstance(ast, ast_.UnaryExprAST)
+    assert ast.op.value == '-'
+    assert ast.primary.op.value == '-'
+    assert ast.primary.primary.value == '1'
+
+
 def test_parser_binary():
     parser_ = parser.Parser(io.StringIO("  +1 - 5"))
     ast = parser_.match_binary_or_unary()
