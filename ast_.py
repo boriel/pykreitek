@@ -217,3 +217,13 @@ class FunctionCallAST(AST):
 
     def emit(self) -> str:
         return '{}({})'.format(self.name.var_name, ', '.join(arg.emit() for arg in self.args.args))
+
+
+class AssigmentAST(AST):
+    def __init__(self, lvalue: IdAST, rvalue: Union[BinaryExprAST, UnaryExprAST]):
+        self.lvalue = lvalue
+        self.rvalue = rvalue
+
+    def emit(self) -> str:
+        return '{} = {}'.format(self.lvalue.emit(), self.rvalue.emit())
+

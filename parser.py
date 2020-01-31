@@ -237,3 +237,17 @@ class Parser:
             return None
 
         return ast_.FunctionCallAST(name=var, args=args)
+
+    def match_var_assignment(self) -> Optional[ast_.AssigmentAST]:
+        var = self.match_id()
+        if not var:
+            return None
+
+        if not self.match(TokenID.ASSIGN):
+            return None
+
+        expr = self.match_binary_or_unary()
+        if expr is None:
+            return None
+
+        return ast_.AssigmentAST(var, expr)
