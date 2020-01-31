@@ -155,6 +155,8 @@ class Parser:
             result = self.match_binary_or_unary()
             self.match(TokenID.RP)
             return result
+        if self.lookahead == TokenID.ID:
+            return self.match_id_or_fcall()
 
         self.error_unexpected_token()
         return None
@@ -224,3 +226,14 @@ class Parser:
 
         self.match(TokenID.RP)
         return ast_.ArgListAST(args)
+
+    def match_id_or_fcall(self) -> Union[None, ast_.IdAST, ast_.FunctionCallAST]:
+        var = self.match_id()
+        if self.lookahead != TokenID.LP or var is None:
+            return var
+
+        args = self.match_arg_list()
+        if args is None:
+            return None
+
+        return ast_.FunctionCallAST(name=var, args=args)

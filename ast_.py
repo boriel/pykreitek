@@ -206,3 +206,14 @@ class ArgListAST(AST):
 
     def emit(self) -> str:
         return '({})'.format(', '.join(x.emit() for x in self.args))
+
+
+class FunctionCallAST(AST):
+    type_: TypeAST
+
+    def __init__(self, name: IdAST, args: ArgListAST):
+        self.name = name
+        self.args = args
+
+    def emit(self) -> str:
+        return '{}({})'.format(self.name.var_name, ', '.join(arg.emit() for arg in self.args.args))

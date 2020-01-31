@@ -150,3 +150,25 @@ def test_parser_arglist():
     assert isinstance(ast, ast_.ArgListAST)
     assert len(ast.args) == 3
     assert ast.emit() == '((5 - 3), 4, (2 + (3 * -4)))'
+
+
+def test_id_of_funccall():
+    parser_ = parser.Parser(io.StringIO(" f(3, -f(a))"))
+    ast = parser_.match_id_or_fcall()
+    assert ast is not None, "Should parse an function call"
+    assert isinstance(ast, ast_.FunctionCallAST)
+    assert len(ast.args.args) == 2
+    assert ast.emit() == 'f(3, -f(a))'
+
+    parser_ = parser.Parser(io.StringIO(" f + "))
+    ast = parser_.match_id_or_fcall()
+    assert ast is not None, "Should parse an Id"
+    assert isinstance(ast, ast_.IdAST)
+    assert ast.var_name == 'f'
+
+
+def test_parse_expressions_with_function_calls():
+    parser_ = parser.Parser(io.StringIO("  3 + f(4, f(-5, 6 * i ** j)) * (3 + 4) - a"))
+    ast = parser_.match_binary_or_unary()
+    assert ast is not None, "Should parse an expression with function calls"
+    assert ast.emit() == '((3 + (f(4, f(-5, (6 * (i ** j)))) * (3 + 4))) - a)'
