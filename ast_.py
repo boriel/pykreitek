@@ -65,8 +65,6 @@ class PrimitiveScalarTypeAST(ScalarTypeAST):
     """
     def __init__(self, token: Token, emmit_str: str = ''):
         assert token.value in PRIMITIVE_TYPES, "Invalid type name '{}'".format(token.value)
-        assert token.value in TOKEN_MAP and TOKEN_MAP[token.value] == token.id_, \
-            "{} does not match type name '{}'".format(str(token.id_), token.value)
         super().__init__(token)
         self._size = PRIMITIVE_TYPES[self.name]
         self._emmit_C = emmit_str
@@ -219,11 +217,20 @@ class FunctionCallAST(AST):
         return '{}({})'.format(self.name.var_name, ', '.join(arg.emit() for arg in self.args.args))
 
 
-class AssigmentAST(AST):
+class AssignmentAST(AST):
     def __init__(self, lvalue: IdAST, rvalue: Union[BinaryExprAST, UnaryExprAST]):
         self.lvalue = lvalue
         self.rvalue = rvalue
 
     def emit(self) -> str:
         return '{} = {}'.format(self.lvalue.emit(), self.rvalue.emit())
+
+
+class VarDeclAST(AST):
+    def __init__(self, var: IdAST, type_: TypeAST):
+        self.var = var
+        self.type_ = type_
+
+    def emit(self) -> str:
+        return '{} {};\n'.format(self.type_.name, self.var.var_name)
 

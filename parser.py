@@ -50,13 +50,13 @@ class Parser:
         self.primitive_types = []
 
         # Populates symbol table
-        self._declare_primitive_type()
+        self._declare_primitive_types()
 
-    def _declare_primitive_type(self):
+    def _declare_primitive_types(self):
         """ Declares primitive types
         """
         for type_name in ast_.PRIMITIVE_TYPES:
-            token = Token(TOKEN_MAP[type_name], 0, 0, type_name)
+            token = Token(TokenID.ID, 0, 0, type_name)
 
             if type_name in ('str', 'char', 'bool'):
                 type_ = ast_.PrimitiveScalarTypeAST(token)
@@ -119,9 +119,24 @@ class Parser:
     def match_id(self) -> Optional[ast_.IdAST]:
         token = self.match(TokenID.ID)
         if not token:
-            return
+            return None
 
         return ast_.IdAST(token[0])
+
+    def match_type(self) -> Optional[ast_.TypeAST]:
+        token = self.match(TokenID.ID)
+        if not token:
+            return None
+
+        token = token[0]
+        type_ = self.symbol_table.resolve_symbol(token.value)
+        if type_ is None:
+            self.error(token.line, "unknown type {}".format(token.value))
+
+        if not isinstance(type_, ast_.TypeAST):
+            self.error(token.line, "{} is not a type".format(token.value))
+
+        return type_
 
     def match_string_literal(self) -> Optional[ast_.StringLiteralAST]:
         token = self.match(TokenID.STR_LITERAL)
@@ -238,7 +253,7 @@ class Parser:
 
         return ast_.FunctionCallAST(name=var, args=args)
 
-    def match_var_assignment(self) -> Optional[ast_.AssigmentAST]:
+    def match_var_assignment(self) -> Optional[ast_.AssignmentAST]:
         var = self.match_id()
         if not var:
             return None
@@ -250,4 +265,25 @@ class Parser:
         if expr is None:
             return None
 
-        return ast_.AssigmentAST(var, expr)
+        return ast_.AssignmentAST(var, expr)
+
+    def match_var_decl(self) -> Optional[ast_.VarDeclAST]:
+        if not self.match(TokenID.VAR):
+            return None
+
+        var = self.match_id()
+        if not var:
+            return None
+
+        if not self.match(TokenID.CO):
+            return None
+
+        type_ = self.match_type()
+        if type_ is None:
+            return None
+
+        if not self.symbol_table.declare_symbol(var.token, type_):
+            return None
+
+        return ast_.VarDeclAST(var, type_)
+

@@ -6,14 +6,8 @@ from lexer import Token, TokenID
 import ast_ as ast  # 'ast' name clashes with ast builtin module
 
 
-def test_raises_wrong_token():
-    with pytest.raises(AssertionError) as e:
-        ast.SignedIntType(Token(TokenID.I8, 0, 0, 'uint8'))
-    assert e.value.args[0] == "TokenID.I8 does not match type name 'uint8'"
-
-
 def test_i8():
-    t = ast.SignedIntType(Token(TokenID.I8, 0, 0, 'int8'))
+    t = ast.SignedIntType(Token(TokenID.ID, 0, 0, 'int8'))
     assert isinstance(t, ast.SignedIntType)
     assert isinstance(t, ast.IntTypeAST)
     assert isinstance(t, ast.ScalarTypeAST)
@@ -23,7 +17,7 @@ def test_i8():
 
 
 def test_u8():
-    t = ast.UnsignedIntType(Token(TokenID.U8, 0, 0, 'uint8'))
+    t = ast.UnsignedIntType(Token(TokenID.ID, 0, 0, 'uint8'))
     assert isinstance(t, ast.UnsignedIntType)
     assert isinstance(t, ast.IntTypeAST)
     assert isinstance(t, ast.ScalarTypeAST)
@@ -33,7 +27,7 @@ def test_u8():
 
 
 def test_i32():
-    t = ast.SignedIntType(Token(TokenID.I32, 0, 0, 'int32'))
+    t = ast.SignedIntType(Token(TokenID.ID, 0, 0, 'int32'))
     assert isinstance(t, ast.SignedIntType)
     assert isinstance(t, ast.IntTypeAST)
     assert isinstance(t, ast.ScalarTypeAST)
@@ -43,7 +37,7 @@ def test_i32():
 
 
 def test_u32():
-    t = ast.UnsignedIntType(Token(TokenID.U32, 0, 0, 'uint32'))
+    t = ast.UnsignedIntType(Token(TokenID.ID, 0, 0, 'uint32'))
     assert isinstance(t, ast.UnsignedIntType)
     assert isinstance(t, ast.IntTypeAST)
     assert isinstance(t, ast.ScalarTypeAST)
@@ -53,7 +47,7 @@ def test_u32():
 
     
 def test_i64():
-    t = ast.SignedIntType(Token(TokenID.I64, 0, 0, 'int64'))
+    t = ast.SignedIntType(Token(TokenID.ID, 0, 0, 'int64'))
     assert isinstance(t, ast.SignedIntType)
     assert isinstance(t, ast.IntTypeAST)
     assert isinstance(t, ast.ScalarTypeAST)
@@ -63,7 +57,7 @@ def test_i64():
 
 
 def test_u64():
-    t = ast.UnsignedIntType(Token(TokenID.U64, 0, 0, 'uint64'))
+    t = ast.UnsignedIntType(Token(TokenID.ID, 0, 0, 'uint64'))
     assert isinstance(t, ast.UnsignedIntType)
     assert isinstance(t, ast.IntTypeAST)
     assert isinstance(t, ast.ScalarTypeAST)
@@ -73,19 +67,19 @@ def test_u64():
 
 
 def test_char():
-    t = ast.PrimitiveScalarTypeAST(Token(TokenID.CHAR, 0, 0, 'char'))
+    t = ast.PrimitiveScalarTypeAST(Token(TokenID.ID, 0, 0, 'char'))
     assert isinstance(t, ast.ScalarTypeAST)
     assert isinstance(t, ast.TypeAST)
 
 
 def test_str():
-    t = ast.PrimitiveScalarTypeAST(Token(TokenID.STR, 0, 0, 'str'))
+    t = ast.PrimitiveScalarTypeAST(Token(TokenID.ID, 0, 0, 'str'))
     assert isinstance(t, ast.ScalarTypeAST)
     assert isinstance(t, ast.TypeAST)
 
 
 def test_bool():
-    t = ast.PrimitiveScalarTypeAST(Token(TokenID.BOOL, 0, 0, 'bool'))
+    t = ast.PrimitiveScalarTypeAST(Token(TokenID.ID, 0, 0, 'bool'))
     assert isinstance(t, ast.ScalarTypeAST)
     assert isinstance(t, ast.TypeAST)
 

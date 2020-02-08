@@ -178,7 +178,27 @@ def test_parse_assignment():
     parser_ = parser.Parser(io.StringIO(" c = 3 + f(4, f(-5, 6 * i ** j)) * (3 + 4) - a"))
     ast = parser_.match_var_assignment()
     assert ast is not None, "Should parse an assignment"
-    assert isinstance(ast, ast_.AssigmentAST)
+    assert isinstance(ast, ast_.AssignmentAST)
     assert isinstance(ast.lvalue, ast_.IdAST)
     assert isinstance(ast.rvalue, ast_.BinaryExprAST)
     assert ast.emit() == 'c = ((3 + (f(4, f(-5, (6 * (i ** j)))) * (3 + 4))) - a)'
+
+
+def test_parse_vardecl(mocker):
+    parser_ = parser.Parser(io.StringIO(" var c: int8"))
+    ast = parser_.match_var_decl()
+    assert ast is not None, "Should parse variable declaration"
+    assert isinstance(ast, ast_.VarDeclAST)
+    assert isinstance(ast.var, ast_.IdAST)
+    assert isinstance(ast.type_, ast_.TypeAST)
+    assert ast.var.var_name == 'c'
+    assert ast.type_.name == 'int8'
+
+    mocker.patch('log.error')
+    parser_ = parser.Parser(io.StringIO(" var c: int8 var c: int8"))
+    parser_.match_var_decl()
+    ast = parser_.match_var_decl()
+    assert ast is None, "Syntax error expected"
+    log.error.assert_called_once_with('1: duplicated name "c"')
+
+

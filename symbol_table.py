@@ -32,12 +32,16 @@ class SymbolTable:
         assert self.current_scope != self.mangle_char, "Symbol Table scope stack underflow"
         self.current_scope = self.pop_suffix(self.current_scope[:-1]) + self.mangle_char
 
-    def declare_symbol(self, token: Token, ast_node: ast_.TypeAST):
+    def declare_symbol(self, token: Token, ast_node: ast_.TypeAST) -> bool:
+        """ Returns True on success, False on error
+        """
         mangled_name = self.current_scope + token.value
         if mangled_name in self.symbols:
             log.error('{}: duplicated name "{}"'.format(token.line, token.value))
+            return False
 
         self.symbols[mangled_name] = ast_node
+        return True
 
     def resolve_symbol(self, symbol_name: str) -> Optional[ast_.TypeAST]:
         scope = self.current_scope

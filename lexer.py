@@ -58,16 +58,8 @@ class TokenID(IntEnum):
     RETURN = 1040
     WHILE = 1145
 
-    I8 = 1050
-    U8 = 1060
-    I32 = 1070
-    U32 = 1080
-    I64 = 1090
-    U64 = 1100
-    FLOAT = 1120
-    CHAR = 1130
-    STR = 1140
-    BOOL = 1150
+    VAR = 1160
+    CONST = 1170
 
 
 TOKEN_MAP = {
@@ -107,17 +99,8 @@ TOKEN_MAP = {
     "else": TokenID.ELSE,
     "return": TokenID.RETURN,
     "while": TokenID.WHILE,
-
-    "char": TokenID.CHAR,
-    "str": TokenID.STR,
-    "int8": TokenID.I8,
-    "uint8": TokenID.U8,
-    "int32": TokenID.I32,
-    "uint32": TokenID.U32,
-    "int64": TokenID.I64,
-    "uint64": TokenID.U64,
-    "float": TokenID.FLOAT,
-    "bool": TokenID.BOOL
+    "var": TokenID.VAR,
+    "const": TokenID.CONST,
 }
 
 
