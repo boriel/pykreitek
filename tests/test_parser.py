@@ -215,6 +215,17 @@ def test_parse_statement(mocker):
         assert ast is not None, "Could not parse sentence {}".format(i + 1)
         assert isinstance(ast, (expected[i]))
 
+    mocker.patch('log.error')
+    parser_ = parser.Parser(io.StringIO("""
+        var c: int8;
+        c = 4
+        f(c);
+    """))
+    parser_.match_sentence()
+    ast = parser_.match_sentence()
+    assert ast is None, "Syntax error expected"
+    log.error.assert_called_once_with("4: syntax error: unexpected token 'Token<ID 4:9 f>'")
+
 
 def test_parse_block():
     parser_ = parser.Parser(io.StringIO("""
