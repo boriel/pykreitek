@@ -248,6 +248,8 @@ def test_parse_block():
     for i in range(4):
         assert isinstance(ast.sentences[i], (expected[i])), "Failed parsing sentence {}".format(i)
 
+    assert ast.emit() == '{\nint8 c;\nc = 4;\n{\nint8 c;\nc = 4;\nf(c);\n};\nf(c);\n}'
+
     assert len(ast.sentences[2].sentences) == 3
     expected = (ast_.VarDeclAST, ast_.AssignmentAST, ast_.FunctionCallAST)
     for i in range(3):
