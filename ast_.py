@@ -175,7 +175,15 @@ class CharLiteralAST(ScalarLiteralAST):
         return "'{}'".format(self.value)
 
 
-class UnaryExprAST(AST):
+class SentenceAST(AST, ABC):
+    pass
+
+
+class ExpressionAST(AST, ABC):
+    pass
+
+
+class UnaryExprAST(ExpressionAST):
     type_: TypeAST
 
     def __init__(self, op: Token, primary: Union[CharLiteralAST, StringLiteralAST, IdAST]):
@@ -186,7 +194,7 @@ class UnaryExprAST(AST):
         return "{}{}".format(self.op.value, self.primary.emit())
 
 
-class BinaryExprAST(AST):
+class BinaryExprAST(ExpressionAST):
     type_: TypeAST
 
     def __init__(self, op: Token, left: UnaryExprAST, right: UnaryExprAST):
@@ -206,7 +214,7 @@ class ArgListAST(AST):
         return '({})'.format(', '.join(x.emit() for x in self.args))
 
 
-class FunctionCallAST(AST):
+class FunctionCallAST(ExpressionAST):
     type_: TypeAST
 
     def __init__(self, name: IdAST, args: ArgListAST):
@@ -217,7 +225,7 @@ class FunctionCallAST(AST):
         return '{}({})'.format(self.name.var_name, ', '.join(arg.emit() for arg in self.args.args))
 
 
-class AssignmentAST(AST):
+class AssignmentAST(SentenceAST):
     def __init__(self, lvalue: IdAST, rvalue: Union[BinaryExprAST, UnaryExprAST]):
         self.lvalue = lvalue
         self.rvalue = rvalue
@@ -226,7 +234,7 @@ class AssignmentAST(AST):
         return '{} = {}'.format(self.lvalue.emit(), self.rvalue.emit())
 
 
-class VarDeclAST(AST):
+class VarDeclAST(SentenceAST):
     def __init__(self, var: IdAST, type_: TypeAST):
         self.var = var
         self.type_ = type_

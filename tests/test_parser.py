@@ -202,3 +202,15 @@ def test_parse_vardecl(mocker):
     log.error.assert_called_once_with('1: duplicated name "c"')
 
 
+def test_parse_statement(mocker):
+    parser_ = parser.Parser(io.StringIO("""
+        var c: int8;
+        c = 4;
+        f(c);
+    """))
+
+    expected = (ast_.VarDeclAST, ast_.AssignmentAST, ast_.ExpressionAST)
+    for i in range(3):
+        ast = parser_.match_sentence()
+        assert ast is not None, "Could not parse sentence {}".format(i + 1)
+        assert isinstance(ast, (expected[i]))

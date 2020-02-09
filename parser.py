@@ -52,6 +52,12 @@ class Parser:
         # Populates symbol table
         self._declare_primitive_types()
 
+    def peek(self, n: int = 0) -> Token:
+        """ Looks ahead n tokens. 0 = current lookahead
+        """
+        assert n >= 0
+        return self.lex.lookahead(n) if n > 0 else self.lookahead
+
     def _declare_primitive_types(self):
         """ Declares primitive types
         """
@@ -286,4 +292,21 @@ class Parser:
             return None
 
         return ast_.VarDeclAST(var, type_)
+
+    def match_sentence(self) -> Optional[ast_.SentenceAST]:
+        if self.lookahead == TokenID.VAR:
+            result = self.match_var_decl()
+        elif self.lookahead == TokenID.ID and self.peek(1) == TokenID.ASSIGN:
+            result = self.match_var_assignment()
+        else:
+            result = self.match_binary_or_unary()
+
+        if result is None:
+            return None
+
+        tok = self.match(TokenID.SC)
+        if not tok:
+            return None
+
+        return result
 
