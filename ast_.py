@@ -240,5 +240,12 @@ class VarDeclAST(SentenceAST):
         self.type_ = type_
 
     def emit(self) -> str:
-        return '{} {};\n'.format(self.type_.name, self.var.var_name)
+        return '{} {}\n'.format(self.type_.name, self.var.var_name)
 
+
+class BlockAST(SentenceAST):
+    def __init__(self, sentences: List[SentenceAST]):
+        self.sentences = sentences
+
+    def emit(self) -> str:
+        return '{\n{}}'.format(''.join('{};\n'.format(x.emit() for x in self.sentences)))

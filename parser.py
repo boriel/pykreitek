@@ -48,6 +48,7 @@ class Parser:
         self.output_stream = output_stream
         self.symbol_table = SymbolTable()
         self.primitive_types = []
+        self.scope_counter = 0
 
         # Populates symbol table
         self._declare_primitive_types()
@@ -74,8 +75,30 @@ class Parser:
             self.symbol_table.declare_symbol(token, type_)
             self.primitive_types.append(type_)
 
+    def start_scope(self, id_: str = None):
+        """ Starts a new scope with an associated ID (string) which will
+        be used, for example, as a mangle prefix for symbols defined within
+        it. If no ID is specified, an random unique one will be created.
+        """
+        if id_ is None:
+            id_ = 'S{}'.format(self.scope_counter)
+            self.scope_counter += 1
+
+        self.symbol_table.push_scope(id_)
+
+    def end_scope(self):
+        """ Closes a scope
+        """
+        self.symbol_table.pop_scope()
+
     def parse(self):
         pass
+
+    @property
+    def current_scope(self) -> str:
+        """ Returns current scope in use
+        """
+        return self.symbol_table.current_scope
 
     @staticmethod
     def error(line, msg):
@@ -310,3 +333,29 @@ class Parser:
 
         return result
 
+    def match_block(self) -> Optional[ast_.BlockAST]:
+        tokens = self.match(TokenID.LBR)
+        if not tokens:
+            return None
+
+        self.start_scope()
+
+        sentences: List[ast_.SentenceAST] = []
+        while self.lookahead != TokenID.RBR:
+            if self.lookahead == TokenID.LBR:
+                sentence = self.match_block()
+            else:
+                sentence = self.match_sentence()
+
+            if sentence is None:
+                return None  # syntax error
+
+            sentences.append(sentence)
+
+        tokens = self.match(TokenID.RBR)
+        if not tokens:
+            return None
+
+        self.end_scope()
+
+        return ast_.BlockAST(sentences)

@@ -214,3 +214,31 @@ def test_parse_statement(mocker):
         ast = parser_.match_sentence()
         assert ast is not None, "Could not parse sentence {}".format(i + 1)
         assert isinstance(ast, (expected[i]))
+
+
+def test_parse_block():
+    parser_ = parser.Parser(io.StringIO("""
+        {
+            var c: int8;
+            c = 4;
+            {
+                var c: int8;
+                c = 4;
+                f(c);
+            }
+            f(c);
+        }
+    """))
+    ast = parser_.match_block()
+    assert ast is not None, "Should parse scope"
+    assert isinstance(ast, ast_.BlockAST)
+    assert len(ast.sentences) == 4
+    expected = (ast_.VarDeclAST, ast_.AssignmentAST, ast_.BlockAST, ast_.FunctionCallAST)
+    for i in range(4):
+        assert isinstance(ast.sentences[i], (expected[i])), "Failed parsing sentence {}".format(i)
+
+    assert len(ast.sentences[2].sentences) == 3
+    expected = (ast_.VarDeclAST, ast_.AssignmentAST, ast_.FunctionCallAST)
+    for i in range(3):
+        assert isinstance(ast.sentences[2].sentences[i], (expected[i])), \
+            "Failed parsing sentence {} in nested block".format(i)

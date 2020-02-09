@@ -14,7 +14,7 @@ class SymbolTable:
     def __init__(self, mangle: str = '.'):
         self.symbols: Dict[str, ast_.TypeAST] = {}
         self.mangle_char = mangle
-        self.current_scope = '.'
+        self.current_scope: str = '.'
 
     def pop_suffix(self, mangled_name: str) -> str:
         return self.mangle_char.join(mangled_name.split(self.mangle_char)[:-1])
