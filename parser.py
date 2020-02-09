@@ -296,6 +296,13 @@ class Parser:
 
         return ast_.AssignmentAST(var, expr)
 
+    def match_typedecl(self) -> Optional[ast_.TypeAST]:
+        token = self.match(TokenID.CO)
+        if token is None:
+            return None
+
+        return self.match_type()
+
     def match_var_decl(self) -> Optional[ast_.VarDeclAST]:
         if not self.match(TokenID.VAR):
             return None
@@ -304,10 +311,7 @@ class Parser:
         if not var:
             return None
 
-        if not self.match(TokenID.CO):
-            return None
-
-        type_ = self.match_type()
+        type_ = self.match_typedecl()
         if type_ is None:
             return None
 
