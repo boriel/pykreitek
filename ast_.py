@@ -249,3 +249,11 @@ class BlockAST(SentenceAST):
 
     def emit(self) -> str:
         return '{{\n{}}}'.format(''.join('{};\n'.format(x.emit()) for x in self.sentences))
+
+
+class ParamListAST(AST):
+    def __init__(self, parameters: List[VarDeclAST]):
+        self.parameters = parameters
+
+    def emit(self) -> str:
+        return '({})'.format(', '.join(x.emit() for x in self.parameters))

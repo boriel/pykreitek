@@ -255,3 +255,13 @@ def test_parse_block():
     for i in range(3):
         assert isinstance(ast.sentences[2].sentences[i], (expected[i])), \
             "Failed parsing sentence {} in nested block".format(i)
+
+
+def test_parse_param_list():
+    parser_ = parser.Parser(io.StringIO("(a: int8, c: int32, d: str)"))
+    ast = parser_.match_param_list()
+    assert ast is not None, "Should parse param list"
+    assert isinstance(ast, ast_.ParamListAST)
+    assert len(ast.parameters) == 3
+    assert ('a', 'c', 'd') == tuple(x.var.var_name for x in ast.parameters)
+

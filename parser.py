@@ -363,3 +363,37 @@ class Parser:
         self.end_scope()
 
         return ast_.BlockAST(sentences)
+
+    def match_param(self) -> Optional[ast_.VarDeclAST]:
+        """ An argument will be treated as a local variable in a new scope
+        """
+        id_ = self.match_id()
+        if not id_:
+            return None
+
+        type_ = self.match_typedecl()
+        if type_ is None:
+            return None
+
+        return ast_.VarDeclAST(id_, type_)
+
+    def match_param_list(self) -> Optional[ast_.ParamListAST]:
+        parameters: List[ast_.VarDeclAST] = []
+
+        if not self.match(TokenID.LP):
+            return None
+
+        if self.lookahead != TokenID.RP:
+            while True:
+                param = self.match_param()
+                if param is None:
+                    return None
+                parameters.append(param)
+                if self.lookahead != TokenID.COMMA:
+                    break
+                self.match(TokenID.COMMA)
+
+        if not self.match(TokenID.RP):
+            return None
+
+        return ast_.ParamListAST(parameters)
