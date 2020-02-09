@@ -2,7 +2,7 @@
 
 
 import sys
-from typing import Union, TextIO
+from typing import Union, TextIO, Optional
 from enum import IntEnum
 from io import StringIO, SEEK_SET
 
@@ -368,6 +368,25 @@ class Lexer:
             self.error_invalid_char()
 
         return Token(TokenID.EOF, line=self.line, col=self.col, value='')
+
+    def lookahead(self, n: int = 1) -> Optional[Token]:
+        """ Looks ahead n tokens
+        """
+        col = self.col
+        line = self.line
+        current_char = self.current_char
+        pos = self._stream.tell()
+
+        result = None
+        for _ in range(n):
+            result = self.get_token()
+
+        self.col = col
+        self.line = line
+        self.current_char = current_char
+        self._stream.seek(pos, SEEK_SET)
+
+        return result
 
 
 if __name__ == '__main__':

@@ -240,3 +240,10 @@ def test_char_literal():
     lex = Lexer(io.StringIO(" 'ñ' 'a' "))
     assert lex.get_token() == Token(TokenID.CHAR_LITERAL, 1, 3, 'ñ')
     assert lex.get_token() == Token(TokenID.CHAR_LITERAL, 1, 7, 'a')
+
+
+def test_token_lookahead():
+    lex = Lexer(io.StringIO(" an_ID ( 324 )"))
+    tokens = [lex.lookahead(i + 1) for i in range(4)]
+    for i in range(4):
+        assert tokens[i] == lex.get_token(), "Failed lookahead {}".format(i + 1)
