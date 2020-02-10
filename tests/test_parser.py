@@ -265,3 +265,27 @@ def test_parse_param_list():
     assert len(ast.parameters) == 3
     assert ('a', 'c', 'd') == tuple(x.var.var_name for x in ast.parameters)
 
+
+def test_parse_function(mocker):
+    parser_ = parser.Parser(io.StringIO("""
+        fn myfunc(a: int8, c: int32, d: str): char {
+            c = c + 1;
+            var de: str;
+            de = d + " ";
+        }
+        """))
+    ast = parser_.match_funcdecl()
+    assert ast is not None, "Should parse function declaration"
+    assert ast.emit() == 'char myfunc(int8 a, int32 c, str d) {\nc = (c + 1);\nstr de;\nde = (d + " ");\n}'
+
+    mocker.patch('log.error')
+    parser_ = parser.Parser(io.StringIO("""
+        fn myfunc(a: int8, c: int32, d: str): char {
+            c = c + 1;
+            var c: str;
+            de = d + " ";
+        }
+        """))
+    ast = parser_.match_funcdecl()
+    assert ast is None, "Should not parse function declaration with duplicated var name"
+    log.error.assert_called_once_with('4: duplicated name "c"')

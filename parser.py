@@ -307,18 +307,7 @@ class Parser:
         if not self.match(TokenID.VAR):
             return None
 
-        var = self.match_id()
-        if not var:
-            return None
-
-        type_ = self.match_typedecl()
-        if type_ is None:
-            return None
-
-        if not self.symbol_table.declare_symbol(var.token, type_):
-            return None
-
-        return ast_.VarDeclAST(var, type_)
+        return self.match_param()  # a param is like a local variable
 
     def match_sentence(self) -> Optional[ast_.SentenceAST]:
         if self.lookahead == TokenID.VAR:
@@ -337,12 +326,16 @@ class Parser:
 
         return result
 
-    def match_block(self) -> Optional[ast_.BlockAST]:
+    def match_block(self, enter_new_scope: bool = True) -> Optional[ast_.BlockAST]:
+        """ Will start a new block (which allows nested variable declarations if a new scope is entered).
+        If enter_new_scope is False, the scope remains the same.
+        """
         tokens = self.match(TokenID.LBR)
         if not tokens:
             return None
 
-        self.start_scope()
+        if enter_new_scope:
+            self.start_scope()
 
         sentences: List[ast_.SentenceAST] = []
         while self.lookahead != TokenID.RBR:
@@ -360,7 +353,8 @@ class Parser:
         if not tokens:
             return None
 
-        self.end_scope()
+        if enter_new_scope:
+            self.end_scope()
 
         return ast_.BlockAST(sentences)
 
@@ -373,6 +367,9 @@ class Parser:
 
         type_ = self.match_typedecl()
         if type_ is None:
+            return None
+
+        if not self.symbol_table.declare_symbol(id_.token, type_):
             return None
 
         return ast_.VarDeclAST(id_, type_)
@@ -397,3 +394,28 @@ class Parser:
             return None
 
         return ast_.ParamListAST(parameters)
+
+    def match_funcdecl(self) -> Optional[ast_.FuncDeclAST]:
+        token = self.match(TokenID.FN)
+        if not token:
+            return None
+
+        func = self.match_id()
+        if func is None:
+            return None
+
+        self.start_scope(func.var_name)
+        params = self.match_param_list()
+        if params is None:
+            return None
+
+        type_ = self.match_typedecl()
+        if type_ is None:
+            return None
+
+        block = self.match_block(enter_new_scope=False)
+        if block is None:
+            return None
+
+        self.end_scope()
+        return ast_.FuncDeclAST(func, paramlist=params, type_=type_, body=block)

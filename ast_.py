@@ -63,14 +63,16 @@ class CompoundTypeAST(TypeAST, ABC):
 class PrimitiveScalarTypeAST(ScalarTypeAST):
     """ Base class for all primitive types that come defined with the compiler
     """
-    def __init__(self, token: Token, emmit_str: str = ''):
+    def __init__(self, token: Token, emit_str: str = None):
         assert token.value in PRIMITIVE_TYPES, "Invalid type name '{}'".format(token.value)
         super().__init__(token)
+        if emit_str is None:
+            emit_str = self.name
         self._size = PRIMITIVE_TYPES[self.name]
-        self._emmit_C = emmit_str
+        self._emit_C = emit_str
 
     def emit(self) -> str:
-        return self._emmit_C
+        return self._emit_C
 
     @property
     def size(self) -> int:
@@ -82,7 +84,7 @@ class PrimitiveScalarTypeAST(ScalarTypeAST):
 class NumericalTypeAST(PrimitiveScalarTypeAST):
     """ Any integer of float
     """
-    _emmit_C: str = None
+    _emit_C: str = None
 
 
 class IntTypeAST(NumericalTypeAST, ABC):
@@ -257,3 +259,18 @@ class ParamListAST(AST):
 
     def emit(self) -> str:
         return '({})'.format(', '.join(x.emit() for x in self.parameters))
+
+
+class FuncDeclAST(AST):
+    def __init__(self, func: IdAST, paramlist: ParamListAST, type_: TypeAST, body: BlockAST):
+        self.func = func
+        self.parameters = paramlist
+        self.type_ = type_
+        self.body = body
+
+    @property
+    def name(self) -> str:
+        return self.func.var_name
+
+    def emit(self) -> str:
+        return '{} {}{} {}'.format(self.type_.emit(), self.name, self.parameters.emit(), self.body.emit())
