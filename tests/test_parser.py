@@ -175,7 +175,7 @@ def test_parse_expressions_with_function_calls():
 
 
 def test_parse_assignment():
-    parser_ = parser.Parser(io.StringIO(" c = 3 + f(4, f(-5, 6 * i ** j)) * (3 + 4) - a"))
+    parser_ = parser.Parser(io.StringIO(" c = 3 + f(4, f(-5, 6 * i ** j)) * (3 + 4) - a;"))
     ast = parser_.match_var_assignment()
     assert ast is not None, "Should parse an assignment"
     assert isinstance(ast, ast_.AssignmentAST)
@@ -185,7 +185,7 @@ def test_parse_assignment():
 
 
 def test_parse_vardecl(mocker):
-    parser_ = parser.Parser(io.StringIO(" var c: int8"))
+    parser_ = parser.Parser(io.StringIO(" var c: int8;"))
     ast = parser_.match_var_decl()
     assert ast is not None, "Should parse variable declaration"
     assert isinstance(ast, ast_.VarDeclAST)
@@ -195,7 +195,7 @@ def test_parse_vardecl(mocker):
     assert ast.type_.name == 'int8'
 
     mocker.patch('log.error')
-    parser_ = parser.Parser(io.StringIO(" var c: int8 var c: int8"))
+    parser_ = parser.Parser(io.StringIO(" var c: int8; var c: int8;"))
     parser_.match_var_decl()
     ast = parser_.match_var_decl()
     assert ast is None, "Syntax error expected"
@@ -289,3 +289,36 @@ def test_parse_function(mocker):
     ast = parser_.match_funcdecl()
     assert ast is None, "Should not parse function declaration with duplicated var name"
     log.error.assert_called_once_with('4: duplicated name "c"')
+
+
+def test_parse_if():
+    parser_ = parser.Parser(io.StringIO("""
+        if a < 10 {
+           if b + 1 == 5 {
+              c = 0;
+           }
+        } else {
+            if a * 4 {
+                f(a) + 1;
+            }
+        }
+    """))
+    ast = parser_.match_if_sentence()
+    assert ast is not None, "Should parse if"
+
+    parser_ = parser.Parser(io.StringIO("""
+        if a < 10
+           if b + 1 == 5 {
+              c = 0;
+           }
+        else {
+            if a * 4 {
+                f(a) + 1;
+            }
+        }
+    """))
+    ast = parser_.match_if_sentence()
+    assert ast is not None, "Should parse if"
+    assert ast.emit() == "if ((a < 10)) {\nif (((b + 1) == 5)) {\n{\nc = 0;\n}\n} else" \
+                         " {\n{\nif ((a * 4)) {\n{\n(f(a) + 1);\n}\n};\n}\n}\n}"
+

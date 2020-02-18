@@ -274,3 +274,15 @@ class FuncDeclAST(AST):
 
     def emit(self) -> str:
         return '{} {}{} {}'.format(self.type_.emit(), self.name, self.parameters.emit(), self.body.emit())
+
+
+class IfSentenceAST(SentenceAST):
+    def __init__(self, condition: ExpressionAST, then: BlockAST, else_: BlockAST = None):
+        self.condition = condition
+        self.then = then
+        self.else_ = else_
+
+    def emit(self) -> str:
+        if self.else_ is None:
+            return "if ({}) {{\n{}\n}}".format(self.condition.emit(), self.then.emit())
+        return "if ({}) {{\n{}\n}} else {{\n{}\n}}".format(self.condition.emit(), self.then.emit(), self.else_.emit())

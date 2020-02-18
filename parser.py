@@ -294,7 +294,11 @@ class Parser:
         if expr is None:
             return None
 
-        return ast_.AssignmentAST(var, expr)
+        result = ast_.AssignmentAST(var, expr)
+        if not self.match(TokenID.SC):
+            return None
+
+        return result
 
     def match_typedecl(self) -> Optional[ast_.TypeAST]:
         token = self.match(TokenID.CO)
@@ -307,24 +311,53 @@ class Parser:
         if not self.match(TokenID.VAR):
             return None
 
-        return self.match_param()  # a param is like a local variable
+        result = self.match_param()  # a param is like a local variable
+        if not self.match(TokenID.SC):
+            return None
+
+        return result
 
     def match_sentence(self) -> Optional[ast_.SentenceAST]:
         if self.lookahead == TokenID.VAR:
             result = self.match_var_decl()
         elif self.lookahead == TokenID.ID and self.peek(1) == TokenID.ASSIGN:
             result = self.match_var_assignment()
+        elif self.lookahead == TokenID.IF:
+            result = self.match_if_sentence()
         else:
             result = self.match_binary_or_unary()
-
-        if result is None:
-            return None
-
-        tok = self.match(TokenID.SC)
-        if not tok:
-            return None
+            if result is not None:
+                tok = self.match(TokenID.SC)
+                if not tok:
+                    return None
 
         return result
+
+    def match_if_sentence(self) -> Optional[ast_.IfSentenceAST]:
+        token = self.match(TokenID.IF)
+        if token is None:
+            return None
+        
+        cond = self.match_binary_or_unary()
+        if cond is None:
+            return None
+
+        then = self.match_sentence_or_block()
+        if then is None:
+            return None
+
+        if self.lookahead != TokenID.ELSE:
+            return ast_.IfSentenceAST(cond, then)
+
+        token = self.match(TokenID.ELSE)
+        if token is None:
+            return None
+
+        else_ = self.match_sentence_or_block()
+        if else_ is None:
+            return None
+
+        return ast_.IfSentenceAST(cond, then, else_)
 
     def match_block(self, enter_new_scope: bool = True) -> Optional[ast_.BlockAST]:
         """ Will start a new block (which allows nested variable declarations if a new scope is entered).
@@ -357,6 +390,12 @@ class Parser:
             self.end_scope()
 
         return ast_.BlockAST(sentences)
+
+    def match_sentence_or_block(self) -> Union[None, ast_.BlockAST, ast_.SentenceAST]:
+        if self.lookahead == TokenID.LBR:
+            return self.match_block()
+
+        return self.match_sentence()
 
     def match_param(self) -> Optional[ast_.VarDeclAST]:
         """ An argument will be treated as a local variable in a new scope
