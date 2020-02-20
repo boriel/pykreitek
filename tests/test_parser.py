@@ -322,3 +322,27 @@ def test_parse_if():
     assert ast.emit() == "if ((a < 10)) {\nif (((b + 1) == 5)) {\n{\nc = 0;\n}\n} else" \
                          " {\n{\nif ((a * 4)) {\n{\n(f(a) + 1);\n}\n};\n}\n}\n}"
 
+
+def test_parse_while():
+    parser_ = parser.Parser(io.StringIO("""
+        while a < 10
+            if a < 5
+                a = a + 1;
+            else
+                a = a + 2;
+    """))
+    ast = parser_.match_sentence()
+    assert ast is not None, "Should parse while"
+    assert ast.emit() == 'while ((a < 10)) {\nif ((a < 5)) {\na = (a + 1)\n} else {\na = (a + 2)\n}\n}'
+
+    parser_ = parser.Parser(io.StringIO("""
+        while a < 10 {
+            if a < 5
+                a = a + 1;
+            else
+                a = a + 2;
+            }
+    """))
+    ast = parser_.match_sentence()
+    assert ast is not None, "Should parse while"
+    assert ast.emit() == 'while ((a < 10)) {\n{\nif ((a < 5)) {\na = (a + 1)\n} else {\na = (a + 2)\n};\n}\n}'

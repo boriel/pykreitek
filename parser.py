@@ -324,6 +324,8 @@ class Parser:
             result = self.match_var_assignment()
         elif self.lookahead == TokenID.IF:
             result = self.match_if_sentence()
+        elif self.lookahead == TokenID.WHILE:
+            result = self.match_while_sentence()
         else:
             result = self.match_binary_or_unary()
             if result is not None:
@@ -458,3 +460,17 @@ class Parser:
 
         self.end_scope()
         return ast_.FuncDeclAST(func, paramlist=params, type_=type_, body=block)
+
+    def match_while_sentence(self) -> Optional[ast_.WhileSentenceAST]:
+        if not self.match(TokenID.WHILE):
+            return None
+
+        cond = self.match_binary_or_unary()
+        if cond is None:
+            return None
+
+        block = self.match_sentence_or_block()
+        if block is None:
+            return None
+
+        return ast_.WhileSentenceAST(condition=cond, block=block)

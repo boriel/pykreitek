@@ -286,3 +286,12 @@ class IfSentenceAST(SentenceAST):
         if self.else_ is None:
             return "if ({}) {{\n{}\n}}".format(self.condition.emit(), self.then.emit())
         return "if ({}) {{\n{}\n}} else {{\n{}\n}}".format(self.condition.emit(), self.then.emit(), self.else_.emit())
+
+
+class WhileSentenceAST(SentenceAST):
+    def __init__(self, condition: ExpressionAST, block: BlockAST):
+        self.condition = condition
+        self.block = block
+
+    def emit(self) -> str:
+        return 'while ({}) {{\n{}\n}}'.format(self.condition.emit(), self.block.emit())
