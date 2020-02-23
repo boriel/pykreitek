@@ -91,9 +91,6 @@ class Parser:
         """
         self.symbol_table.pop_scope()
 
-    def parse(self):
-        pass
-
     @property
     def current_scope(self) -> str:
         """ Returns current scope in use
@@ -317,6 +314,21 @@ class Parser:
 
         return result
 
+    def match_return_sentence(self) -> Optional[ast_.ReturnSentenceAST]:
+        if not self.match(TokenID.RETURN):
+            return None
+
+        expr = None
+        if self.lookahead != TokenID.SC:
+            expr = self.match_binary_or_unary()
+            if expr is None:
+                return None
+
+        if not self.match(TokenID.SC):
+            return None
+
+        return ast_.ReturnSentenceAST(expr)
+
     def match_sentence(self) -> Optional[ast_.SentenceAST]:
         if self.lookahead == TokenID.VAR:
             result = self.match_var_decl()
@@ -326,6 +338,8 @@ class Parser:
             result = self.match_if_sentence()
         elif self.lookahead == TokenID.WHILE:
             result = self.match_while_sentence()
+        elif self.lookahead == TokenID.FN:
+            result = self.match_funcdecl()
         else:
             result = self.match_binary_or_unary()
             if result is not None:
@@ -374,11 +388,7 @@ class Parser:
 
         sentences: List[ast_.SentenceAST] = []
         while self.lookahead != TokenID.RBR:
-            if self.lookahead == TokenID.LBR:
-                sentence = self.match_block()
-            else:
-                sentence = self.match_sentence()
-
+            sentence = self.match_sentence_or_block()
             if sentence is None:
                 return None  # syntax error
 

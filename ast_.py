@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 
-from lexer import Token, TOKEN_MAP
+from lexer import Token
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from typing import List, Union
+from typing import List, Union, Optional
 
 
 PRIMITIVE_TYPES = OrderedDict([
@@ -295,3 +295,11 @@ class WhileSentenceAST(SentenceAST):
 
     def emit(self) -> str:
         return 'while ({}) {{\n{}\n}}'.format(self.condition.emit(), self.block.emit())
+
+
+class ReturnSentenceAST(SentenceAST):
+    def __init__(self, value: Optional[ExpressionAST]):
+        self.value = value
+
+    def emit(self) -> str:
+        return 'return{};'.format(' {}'.format(self.value.emit()) if self.value is not None else '')

@@ -346,3 +346,21 @@ def test_parse_while():
     ast = parser_.match_sentence()
     assert ast is not None, "Should parse while"
     assert ast.emit() == 'while ((a < 10)) {\n{\nif ((a < 5)) {\na = (a + 1)\n} else {\na = (a + 2)\n};\n}\n}'
+
+
+def test_parse_return():
+    parser_ = parser.Parser(io.StringIO("""
+    return;
+    """))
+    ast = parser_.match_return_sentence()
+    assert ast is not None, "Should parse return ;"
+    assert ast.value is None
+    assert ast.emit() == 'return;'
+
+    parser_ = parser.Parser(io.StringIO("""
+    return f(a) + 5;
+    """))
+    ast = parser_.match_return_sentence()
+    assert ast is not None, "Should parse return <value>;"
+    assert ast.value is not None
+    assert ast.emit() == 'return (f(a) + 5);'
