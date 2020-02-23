@@ -37,15 +37,13 @@ class Parser:
 
     def __init__(self,
                  input_stream: Union[str, TextIO, StringIO],
-                 encoding: str = 'utf-8',
-                 output_stream: Union[TextIO, StringIO, None] = None
+                 encoding: str = 'utf-8'
                  ):
         self.lex = Lexer(
             input_stream=input_stream,
             encoding=encoding
         )
         self.lookahead = self.lex.get_token()
-        self.output_stream = output_stream
         self.symbol_table = SymbolTable()
         self.primitive_types = []
         self.scope_counter = 0
