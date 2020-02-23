@@ -364,3 +364,23 @@ def test_parse_return():
     assert ast is not None, "Should parse return <value>;"
     assert ast.value is not None
     assert ast.emit() == 'return (f(a) + 5);'
+
+
+def test_parse_program():
+    parser_ = parser.Parser(io.StringIO("""
+    fn f(a: int32): int32 {
+        return a + 1;
+    }
+
+    while a < 10 {
+        if a < 5
+            a = a + 1;
+        else
+            a = a + 2;
+        }
+    """))
+    ast = parser_.parse_program()
+    assert ast is not None, "Should parse a program"
+    assert ast.emit() == '{\nint32 f(int32 a) {\nreturn (a + 1);;\n};' \
+                         '\nwhile ((a < 10)) {\n{\nif ((a < 5)) {\na = (a + 1)\n} else ' \
+                         '{\na = (a + 2)\n};\n}\n};\n}'

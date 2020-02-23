@@ -338,6 +338,8 @@ class Parser:
             result = self.match_if_sentence()
         elif self.lookahead == TokenID.WHILE:
             result = self.match_while_sentence()
+        elif self.lookahead == TokenID.RETURN:
+            result = self.match_return_sentence()
         elif self.lookahead == TokenID.FN:
             result = self.match_funcdecl()
         else:
@@ -350,8 +352,7 @@ class Parser:
         return result
 
     def match_if_sentence(self) -> Optional[ast_.IfSentenceAST]:
-        token = self.match(TokenID.IF)
-        if token is None:
+        if not self.match(TokenID.IF):
             return None
         
         cond = self.match_binary_or_unary()
@@ -365,8 +366,7 @@ class Parser:
         if self.lookahead != TokenID.ELSE:
             return ast_.IfSentenceAST(cond, then)
 
-        token = self.match(TokenID.ELSE)
-        if token is None:
+        if not self.match(TokenID.ELSE):
             return None
 
         else_ = self.match_sentence_or_block()
@@ -484,3 +484,15 @@ class Parser:
             return None
 
         return ast_.WhileSentenceAST(condition=cond, block=block)
+
+    def parse_program(self) -> Optional[ast_.BlockAST]:
+        sentences: List[ast_.SentenceAST] = []
+        self.start_scope()  # Main scope
+        while self.lookahead != TokenID.EOF:
+            sentence = self.match_sentence_or_block()
+            if sentence is None:
+                return None
+            sentences.append(sentence)
+
+        self.end_scope()
+        return ast_.BlockAST(sentences=sentences)
