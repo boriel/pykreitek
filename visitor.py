@@ -49,7 +49,15 @@ class Visitor:
     def visit_NumericLiteralAST(self, ast: ast_.NumericLiteralAST):
         self._output('{}'.format(ast.value))
 
+    def visit_IdAST(self, ast: ast_.IdAST):
+        self._output('{}'.format(ast.var_name))
+
     def visit_AssignmentAST(self, ast: ast_.AssignmentAST):
         self._output('{} = '.format(ast.lvalue.var_name))
         self.visit(ast.rvalue)
         self._output(';')
+
+    def visit_BinaryExprAST(self, ast: ast_.BinaryExprAST):
+        self.visit(ast.left)
+        self._output(' {} '.format(ast.op.value))
+        self.visit(ast.right)
