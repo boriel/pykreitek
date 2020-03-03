@@ -22,15 +22,20 @@ class Visitor:
         self._output('{\n')
         self.indent_level += 1
         for sentence in ast.sentences:
+            self._indent()
             self.visit(sentence)
+            self._output_line('')
         self.indent_level -= 1
         self._output('}')
 
     def _output(self, s: str):
         self.outbuffer.write(s)
 
+    def _indent(self):
+        self._output('{}'.format(' ' * 2 * self.indent_level))
+
     def _output_line(self, line: str):
-        self._output('{}{}\n'.format(' ' * 2 * self.indent_level, line))
+        self._output('{}\n'.format(line))
 
     def visit_VarDeclAST(self, ast: ast_.VarDeclAST):
         types = {
@@ -39,4 +44,12 @@ class Visitor:
             'int64': 'int64_t',
             'float': 'double',
         }
-        self._output_line('{} {};'.format(types[ast.type_.name], ast.var.var_name))
+        self._output('{} {};'.format(types[ast.type_.name], ast.var.var_name))
+
+    def visit_NumericLiteralAST(self, ast: ast_.NumericLiteralAST):
+        self._output('{}'.format(ast.value))
+
+    def visit_AssignmentAST(self, ast: ast_.AssignmentAST):
+        self._output('{} = '.format(ast.lvalue.var_name))
+        self.visit(ast.rvalue)
+        self._output(';')
