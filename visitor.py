@@ -58,6 +58,8 @@ class Visitor:
         self._output(';')
 
     def visit_BinaryExprAST(self, ast: ast_.BinaryExprAST):
+        self._output('(')
         self.visit(ast.left)
         self._output(' {} '.format(ast.op.value))
         self.visit(ast.right)
+        self._output(')')
