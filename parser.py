@@ -444,7 +444,7 @@ class Parser:
 
         return ast_.ParamListAST(parameters)
 
-    def match_funcdecl(self) -> Optional[ast_.FuncDeclAST]:
+    def match_funcdecl(self) -> Optional[ast_.FunctionDeclAST]:
         token = self.match(TokenID.FN)
         if not token:
             return None
@@ -467,7 +467,7 @@ class Parser:
             return None
 
         self.end_scope()
-        return ast_.FuncDeclAST(func, paramlist=params, type_=type_, body=block)
+        return ast_.FunctionDeclAST(func, paramlist=params, type_=type_, body=block)
 
     def match_while_sentence(self) -> Optional[ast_.WhileSentenceAST]:
         if not self.match(TokenID.WHILE):

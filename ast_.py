@@ -261,7 +261,7 @@ class ParamListAST(AST):
         return '({})'.format(', '.join(x.emit() for x in self.parameters))
 
 
-class FuncDeclAST(AST):
+class FunctionDeclAST(AST):
     def __init__(self, func: IdAST, paramlist: ParamListAST, type_: TypeAST, body: BlockAST):
         self.func = func
         self.parameters = paramlist
